@@ -1,28 +1,41 @@
+/* =========================================
+   1. VARIABLES & GLOBAL SETTINGS
+   ========================================= */
 :root {
-  --primary: #4a90e2;
-  --bg: #f5f7fa;
-  --card-bg: #ffffff;
-  --text: #2c3e50;
-  --success: #4cd964;
-  --error: #ff3b30;
-  --radius: 12px;
+  /* Color Palette - Modern Clean */
+  --primary: #4a90e2;       /* สีหลัก (ฟ้า) */
+  --primary-hover: #357abd; /* สีหลักตอนเอาเมาส์ชี้ */
+  --bg: #f5f7fa;            /* สีพื้นหลังเว็บ (เทาอ่อน) */
+  --card-bg: #ffffff;       /* สีพื้นหลังการ์ด (ขาว) */
+  --text: #2c3e50;          /* สีตัวหนังสือหลัก (กรมท่าเข้ม) */
+  --text-light: #7f8c8d;    /* สีตัวหนังสือรอง (เทา) */
+  --success: #4cd964;       /* สีเขียว (ถูกต้อง) */
+  --error: #ff3b30;         /* สีแดง (ผิด) */
+  --radius: 16px;           /* ความโค้งของมุม */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* เงามาตรฐาน */
+}
+
+* {
+  box-sizing: border-box; /* สำคัญ: จัดการ Padding ไม่ให้ดันกล่องแตก */
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Kanit', 'Noto Sans JP', sans-serif;
   background-color: var(--bg);
   color: var(--text);
   margin: 0;
   display: flex;
   justify-content: center;
   min-height: 100vh;
+  padding: 20px 0; /* เว้นขอบบนล่างนิดหน่อย */
 }
 
+/* Container หลักของแอป */
 .app-container {
   width: 100%;
-  max-width: 480px; /* Mobile app feel */
+  max-width: 800px; /* ขยายให้กว้างขึ้นเพื่อรองรับตาราง */
   padding: 20px;
-  background: var(--bg);
+  margin: 0 auto;
 }
 
 header {
@@ -30,74 +43,158 @@ header {
   margin-bottom: 2rem;
 }
 
-.jp-font {
-  color: var(--primary);
-  font-family: 'Noto Sans JP', sans-serif; /* Ensure you import this via Google Fonts */
+header h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: var(--text);
 }
 
-/* Dashboard Styles */
-.stats-overview {
-  display: flex;
+.jp-font {
+  color: var(--primary);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: bold;
+}
+
+/* =========================================
+   2. DASHBOARD & STATS
+   ========================================= */
+.dashboard-container {
+  text-align: center;
+  width: 100%;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* ปรับคอลัมน์อัตโนมัติ */
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .stat-card {
-  flex: 1;
-  background: var(--card-bg);
-  padding: 15px;
-  border-radius: var(--radius);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  text-align: center;
-}
-
-.stat-card h3 { font-size: 0.8rem; opacity: 0.7; margin: 0; }
-.stat-card p { font-size: 1.5rem; font-weight: bold; margin: 5px 0 0; }
-
-.start-btn {
-  width: 100%;
-  padding: 18px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.1s;
-  margin-bottom: 30px;
-}
-
-.start-btn:active { transform: scale(0.98); }
-
-.charts-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.chart-wrapper {
-  background: var(--card-bg);
-  padding: 15px;
-  border-radius: var(--radius);
-}
-
-.no-data { text-align: center; opacity: 0.5; font-style: italic; }
-
-/* Game Styles */
-.game-card {
   background: var(--card-bg);
   padding: 20px;
   border-radius: var(--radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: center;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-top: 5px;
+}
+
+/* =========================================
+   3. MENU SELECTION (Home Page)
+   ========================================= */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  width: 100%;
+}
+
+.menu-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 30px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* ระยะห่างระหว่างหัวข้อและปุ่ม */
+}
+
+.menu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.menu-card h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.8rem;
+}
+
+.menu-card p {
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* =========================================
+   4. BUTTONS
+   ========================================= */
+.start-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.start-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.start-btn:active {
+  transform: scale(0.98);
+}
+
+/* ปุ่มรอง (Outline Button) */
+.btn-outline {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: var(--text-light);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: #f0f7ff;
+}
+
+/* =========================================
+   5. GAME UI (หน้าเล่นเกม)
+   ========================================= */
+.game-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  max-width: 500px; /* จำกัดความกว้างไม่ให้ใหญ่เกินไป */
+  margin: 0 auto;   /* จัดกึ่งกลาง */
+}
+
+/* Progress Bar */
 .progress-bar {
-  height: 6px;
-  background: #eee;
-  border-radius: 3px;
-  margin-bottom: 30px;
+  height: 10px;
+  background: #edf2f7;
+  border-radius: 5px;
+  margin-bottom: 20px;
   overflow: hidden;
 }
 
@@ -107,42 +204,55 @@ header {
   transition: width 0.3s ease;
 }
 
+/* ตัวอักษรโจทย์ (แก้ให้ใหญ่ชัดเจน) */
 .hiragana-char {
-  font-size: 6rem;
+  font-size: 8rem; /* ใหญ่สะใจ */
   font-weight: bold;
-  margin-bottom: 40px;
-  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  margin: 20px 0;
+  line-height: 1;
+  min-height: 150px; /* กันพื้นที่ไว้ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Grid ปุ่มคำตอบ */
 .options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .option-btn {
   padding: 20px;
-  font-size: 1.2rem;
-  background: #f0f4f8;
-  border: 2px solid transparent;
-  border-radius: var(--radius);
+  font-size: 1.5rem;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
   cursor: pointer;
+  color: var(--text);
   transition: all 0.2s;
 }
 
-.option-btn:hover:not(:disabled) { border-color: var(--primary); }
+.option-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background-color: #eaf2ff;
+  transform: translateY(-2px);
+}
 
+/* เฉลยถูก/ผิด */
 .option-btn.correct {
-  background-color: var(--success);
-  color: white;
-  border-color: var(--success);
+  background-color: var(--success) !important;
+  color: white !important;
+  border-color: var(--success) !important;
 }
 
 .option-btn.wrong {
-  background-color: var(--error);
-  color: white;
-  border-color: var(--error);
+  background-color: var(--error) !important;
+  color: white !important;
+  border-color: var(--error) !important;
 }
 
 .game-footer {
@@ -150,180 +260,90 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+  color: var(--text-light);
   font-weight: bold;
-  color: #888;
 }
 
 .text-btn {
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-light);
   text-decoration: underline;
   cursor: pointer;
 }
 
-/* --- Dashboard Styles --- */
-.dashboard-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-  color: #333;
+.text-btn:hover {
+  color: var(--error);
 }
 
-.dashboard-title {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  margin-bottom: 5px;
-}
-
-.chart-section {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-}
-
-.chart-title {
-  text-align: left;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 15px;
-}
-
-.start-btn {
-  width: 100%;
-  padding: 15px;
-  background-color: #4a90e2;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
-}
-
-.start-btn:hover {
-  background-color: #357abd;
-  transform: translateY(-2px);
-}
-
-/* --- Styles สำหรับตารางตัวอักษร --- */
+/* =========================================
+   6. CHART UI (หน้าตารางตัวอักษร)
+   ========================================= */
 .chart-container {
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 30px;
-  border-radius: 20px;
-  max-width: 800px;
-  margin: 20px auto;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .chart-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 15px;
-  margin-top: 20px;
+  /* 5 คอลัมน์มาตรฐานสำหรับ Hiragana */
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 10px;
 }
 
 .chart-item {
   background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 10px;
-  padding: 10px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   transition: transform 0.2s;
+  aspect-ratio: 1 / 1; /* ให้เป็นสี่เหลี่ยมจัตุรัส */
 }
 
 .chart-item:hover {
   transform: scale(1.1);
-  border-color: #4a90e2;
-  background-color: #eaf2ff;
+  border-color: var(--primary);
+  background-color: #f0f7ff;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .chart-char {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--text);
 }
 
 .chart-romaji {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 2px;
   text-transform: uppercase;
 }
 
-/* จัดหน้าเมนูให้สวยงาม */
-.menu-grid {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 15px;
-  min-width: 250px;
-}
-
-.menu-section h3 {
-  color: white;
-  margin-bottom: 10px;
-  border-bottom: 2px solid rgba(255,255,255,0.3);
-  padding-bottom: 10px;
-}
-
-/* ปุ่มรอง (Secondary Button) สำหรับตาราง */
-.menu-button.secondary {
-  background-color: #2ecc71; /* สีเขียว */
-}
-
-.menu-button.secondary:hover {
-  background-color: #27ae60;
-}
-
-/* ซ่อนกล่องที่ไม่มีข้อมูล (ช่องว่างจัดระเบียบ) */
+/* ซ่อนกล่องเปล่า */
 .chart-item.empty {
-  visibility: hidden; /* ซ่อนไม่ให้เห็น */
-  pointer-events: none; /* คลิ๊กไม่ได้ */
-  border: none; /* ไม่มีขอบ */
-  background: transparent; /* พื้นหลังใส */
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Responsive: ถ้าจอมือถือเล็กมาก ให้ลดขนาดฟอนต์ในตาราง */
+@media (max-width: 480px) {
+  .chart-char { font-size: 1.2rem; }
+  .chart-romaji { font-size: 0.7rem; }
+  .hiragana-char { font-size: 6rem; } /* ลดขนาดโจทย์ในจอมือถือเล็กๆ */
 }

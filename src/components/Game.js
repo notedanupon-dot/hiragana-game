@@ -6,12 +6,15 @@ const Game = ({ dataset, onEnd, onCancel }) => {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // 'a', 'ka', etc.
+  const [selectedAnswer, setSelectedAnswer] = useState(null); 
   const [isAnswered, setIsAnswered] = useState(false);
-  const [sessionDetails, setSessionDetails] = useState([]); // Track specifically for this game
+  const [sessionDetails, setSessionDetails] = useState([]); 
 
   // Initialize Game
   useEffect(() => {
+    // ป้องกันกรณี Dataset ว่างเปล่า
+    if (!dataset || dataset.length === 0) return;
+
     // Shuffle dataset and pick 10
     const shuffled = [...dataset].sort(() => 0.5 - Math.random()).slice(0, QUESTION_LIMIT);
     
@@ -41,7 +44,6 @@ const Game = ({ dataset, onEnd, onCancel }) => {
 
     if (isCorrect) setScore(score + 1);
 
-    // Record detail
     setSessionDetails([...sessionDetails, { 
       romaji: currentQ.romaji, 
       isCorrect 
@@ -61,10 +63,10 @@ const Game = ({ dataset, onEnd, onCancel }) => {
           details: [...sessionDetails, { romaji: currentQ.romaji, isCorrect }]
         });
       }
-    }, 1200); // 1.2 second pause to see result
+    }, 1200); 
   };
 
-  if (questions.length === 0) return <div>Loading...</div>;
+  if (questions.length === 0) return <div className="loading-text">กำลังโหลดโจทย์...</div>;
 
   const currentQ = questions[currentIndex];
 
@@ -78,12 +80,14 @@ const Game = ({ dataset, onEnd, onCancel }) => {
       </div>
 
       <div className="question-area">
-        <div className="hiragana-char">{currentQ.char}</div>
+        {/* ✅ แก้ไขจุดที่ 1: ใส่เงื่อนไขดักจับทั้ง char และ character (กันเหนียว) */}
+        <div className="hiragana-char">
+          {currentQ.char || currentQ.character || "?"}
+        </div>
       </div>
 
       <div className="options-grid">
         {currentQ.options.map((opt) => {
-          // Determine button style based on state
           let btnClass = "option-btn";
           if (isAnswered) {
              if (opt.romaji === currentQ.romaji) btnClass += " correct";
