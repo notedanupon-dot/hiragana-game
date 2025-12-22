@@ -319,3 +319,11 @@ header {
 .menu-button.secondary:hover {
   background-color: #27ae60;
 }
+
+/* ซ่อนกล่องที่ไม่มีข้อมูล (ช่องว่างจัดระเบียบ) */
+.chart-item.empty {
+  visibility: hidden; /* ซ่อนไม่ให้เห็น */
+  pointer-events: none; /* คลิ๊กไม่ได้ */
+  border: none; /* ไม่มีขอบ */
+  background: transparent; /* พื้นหลังใส */
+}

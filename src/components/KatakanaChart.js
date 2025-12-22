@@ -16,7 +16,7 @@ function KatakanaChart() {
         <div className="chart-container">
           <div className="chart-grid">
             {katakanaData.map((item, index) => (
-              <div key={index} className="chart-item">
+              <div key={index} className={`chart-item ${!item.character ? 'empty' : ''}`}>
                 <div className="chart-char">{item.character}</div>
                 <div className="chart-romaji">{item.romaji}</div>
               </div>

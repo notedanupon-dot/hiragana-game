@@ -1,21 +1,31 @@
 const hiraganaData = [
+  // แถว A
   { character: 'あ', romaji: 'a' }, { character: 'い', romaji: 'i' }, { character: 'う', romaji: 'u' }, { character: 'え', romaji: 'e' }, { character: 'お', romaji: 'o' },
+  // แถว KA
   { character: 'か', romaji: 'ka' }, { character: 'き', romaji: 'ki' }, { character: 'く', romaji: 'ku' }, { character: 'け', romaji: 'ke' }, { character: 'こ', romaji: 'ko' },
+  // แถว SA
   { character: 'さ', romaji: 'sa' }, { character: 'し', romaji: 'shi' }, { character: 'す', romaji: 'su' }, { character: 'せ', romaji: 'se' }, { character: 'そ', romaji: 'so' },
+  // แถว TA
   { character: 'た', romaji: 'ta' }, { character: 'ち', romaji: 'chi' }, { character: 'つ', romaji: 'tsu' }, { character: 'て', romaji: 'te' }, { character: 'と', romaji: 'to' },
+  // แถว NA
   { character: 'な', romaji: 'na' }, { character: 'に', romaji: 'ni' }, { character: 'ぬ', romaji: 'nu' }, { character: 'ね', romaji: 'ne' }, { character: 'の', romaji: 'no' },
+  // แถว HA
   { character: 'は', romaji: 'ha' }, { character: 'ひ', romaji: 'hi' }, { character: 'ふ', romaji: 'fu' }, { character: 'へ', romaji: 'he' }, { character: 'ほ', romaji: 'ho' },
+  // แถว MA
   { character: 'ま', romaji: 'ma' }, { character: 'み', romaji: 'mi' }, { character: 'む', romaji: 'mu' }, { character: 'め', romaji: 'me' }, { character: 'も', romaji: 'mo' },
-  { character: 'や', romaji: 'ya' }, { character: 'ゆ', romaji: 'yu' }, { character: 'よ', romaji: 'yo' },
+  
+  // --- แถว YA (จัดระเบียบ: Ya - ว่าง - Yu - ว่าง - Yo) ---
+  { character: 'や', romaji: 'ya' }, { character: '', romaji: '' }, { character: 'ゆ', romaji: 'yu' }, { character: '', romaji: '' }, { character: 'よ', romaji: 'yo' },
+  
+  // แถว RA
   { character: 'ら', romaji: 'ra' }, { character: 'り', romaji: 'ri' }, { character: 'る', romaji: 'ru' }, { character: 'れ', romaji: 're' }, { character: 'ろ', romaji: 'ro' },
-  { character: 'わ', romaji: 'wa' }, { character: 'を', romaji: 'wo' }, { character: 'ん', romaji: 'n' }
+  
+  // --- แถว WA (จัดระเบียบ: Wa - ว่าง - ว่าง - ว่าง - Wo) ---
+  { character: 'わ', romaji: 'wa' }, { character: '', romaji: '' }, { character: '', romaji: '' }, { character: '', romaji: '' }, { character: 'を', romaji: 'wo' },
+  
+  // --- แถว N (ตัวเดียว) ---
+  { character: 'ん', romaji: 'n' }, { character: '', romaji: '' }, { character: '', romaji: '' }, { character: '', romaji: '' }, { character: '', romaji: '' }
 ];
 
-// บรรทัดนี้สำคัญที่สุดครับ! ต้องมี
-// --- ส่วนท้ายของไฟล์ hiragana.js ---
-
-// 1. ส่งออกสำหรับไฟล์ที่เรียกแบบ { hiraganaData } (เช่น HiraganaGame ตัวเก่า)
 export { hiraganaData };
-
-// 2. ส่งออกสำหรับไฟล์ที่เรียกแบบ hiraganaData (เช่น HiraganaChart ตัวใหม่)
 export default hiraganaData;
