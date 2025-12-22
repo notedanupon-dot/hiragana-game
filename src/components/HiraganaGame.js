@@ -13,7 +13,7 @@ function HiraganaGame() {
     charStats: {} 
   });
 
-  // ✅ เพิ่มบรรทัดนี้: กรองเอาเฉพาะข้อมูลที่มีตัวอักษร (ตัดช่องว่างทิ้ง)
+  // ✅ แก้ไขจุดที่ 1: สร้างตัวแปรใหม่ กรองเอาเฉพาะตัวที่มีข้อมูล (ตัดช่องว่างทิ้ง)
   // เพื่อไม่ให้ Game สุ่มเจอโจทย์ว่างๆ
   const activeGameData = hiraganaData.filter(item => item.character && item.character !== '');
 
@@ -71,7 +71,7 @@ function HiraganaGame() {
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
         {view === 'game' && (
-          /* ✅ แก้ตรงนี้: ส่ง activeGameData (ที่กรองแล้ว) แทน hiraganaData ตัวเดิม */
+          /* ✅ แก้ไขจุดที่ 2: ส่ง activeGameData (ที่กรองแล้ว) แทน hiraganaData ตัวเดิม */
           <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
         )}
       </main>
