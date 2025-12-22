@@ -1,40 +1,59 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import '../App.css';
 
 function Home() {
-  const navigate = useNavigate();
-
-  const styles = {
-    container: { textAlign: 'center', padding: '50px', fontFamily: 'Arial, sans-serif' },
-    title: { color: '#333', marginBottom: '40px' },
-    buttonGroup: { display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' },
-    button: {
-      padding: '15px 30px',
-      fontSize: '18px',
-      cursor: 'pointer',
-      backgroundColor: '#4CAF50',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      width: '250px',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-    }
-  };
-
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>🇯🇵 Japanese Master Game</h1>
-      <div style={styles.buttonGroup}>
-        <button style={styles.button} onClick={() => navigate('/hiragana')}>
-          あ ฝึกฮิรางานะ (Hiragana)
-        </button>
-        <button style={{...styles.button, backgroundColor: '#2196F3'}} onClick={() => navigate('/katakana')}>
-          ア ฝึกคาตาคานะ (Katakana)
-        </button>
-        <button style={{...styles.button, backgroundColor: '#FF9800'}} onClick={() => navigate('/vocab')}>
-          📖 ทายคำศัพท์ (Vocabulary)
-        </button>
+    <div className="App">
+      {/* Hero Section */}
+      <div className="hero-section">
+        <h1 className="main-title">Japanese <span>Master</span></h1>
+        <p className="sub-title">ฝึกภาษาญี่ปุ่นวันละนิด เก่งขึ้นแน่นอน! 🇯🇵</p>
       </div>
+
+      <div className="section-label">🎮 โหมดฝึกฝน (Games)</div>
+
+      <div className="menu-grid">
+        {/* Card: Hiragana */}
+        <div className="menu-card">
+          <div className="card-icon">あ</div>
+          <h2 className="card-title">ฝึกฮิรางานะ</h2>
+          <p className="card-desc">ทายตัวอักษรพื้นฐานให้ถูกต้อง</p>
+          <Link to="/game/hiragana" className="action-btn btn-hira">
+            เริ่มเล่นเลย!
+          </Link>
+          <Link to="/chart-hiragana" className="action-btn btn-outline">
+            ดูตารางตัวอักษร
+          </Link>
+        </div>
+
+        {/* Card: Katakana */}
+        <div className="menu-card">
+          <div className="card-icon">ア</div>
+          <h2 className="card-title">ฝึกคาตาคานะ</h2>
+          <p className="card-desc">จำตัวอักษรสำหรับคำทับศัพท์</p>
+          <Link to="/game/katakana" className="action-btn btn-kata">
+            เริ่มเล่นเลย!
+          </Link>
+          <Link to="/chart-katakana" className="action-btn btn-outline">
+            ดูตารางตัวอักษร
+          </Link>
+        </div>
+
+        {/* Card: Vocabulary */}
+        <div className="menu-card">
+          <div className="card-icon">📖</div>
+          <h2 className="card-title">ทายคำศัพท์</h2>
+          <p className="card-desc">สะสมคลังคำศัพท์ในชีวิตประจำวัน</p>
+          <Link to="/game/vocabulary" className="action-btn btn-vocab">
+            เริ่มเล่นเลย!
+          </Link>
+        </div>
+      </div>
+      
+      <footer style={{marginTop: '50px', color: '#999', fontSize: '0.9rem'}}>
+        Create with ❤️ by You
+      </footer>
     </div>
   );
 }
