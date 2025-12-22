@@ -6,8 +6,8 @@ import './App.css';
 import HiraganaGame from './components/HiraganaGame';
 // import KatakanaGame from './components/KatakanaGame'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
  import VocabGame from './components/VocabGame';       // (เปิดใช้เมื่อมีไฟล์แล้ว)
-// import HiraganaChart from './components/HiraganaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
-// import KatakanaChart from './components/KatakanaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+ import HiraganaChart from './components/HiraganaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+ import KatakanaChart from './components/KatakanaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
 
 import Login from './components/Login';
 
@@ -94,7 +94,9 @@ function App() {
           {/* ส่ง username เข้าไปในเกมด้วย เพื่อใช้บันทึก Firebase */}
           <Route path="/hiragana-game" element={<HiraganaGame username={username} />} />
           <Route path="/vocabulary-game" element={<VocabGame username={username} />} />
-          
+          <Route path="/chart-hiragana" element={<HiraganaChart />} /> // ✅ ต้องไม่มี //
+<Route path="/chart-katakana" element={<KatakanaChart />} /> // ✅ ต้องไม่มี //
+
           {/* (ใส่ Comment ไว้ก่อนกัน Error จนกว่าจะสร้างไฟล์เสร็จ) */}
           {/* <Route path="/katakana-game" element={<KatakanaGame username={username} />} /> */}
           {/* <Route path="/vocabulary-game" element={<VocabGame username={username} />} /> */}

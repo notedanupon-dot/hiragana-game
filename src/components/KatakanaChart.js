@@ -1,29 +1,38 @@
 import React from 'react';
+// import { katakanaData } from '../data/katakana'; // (ถ้ามีไฟล์นี้แล้วให้เปิดใช้)
 import { Link } from 'react-router-dom';
-import katakanaData from '../data/katakana';
 import '../App.css';
 
-function KatakanaChart() {
-  return (
-    <div className="App">
-      <header className="App-header" style={{minHeight: '100vh', paddingTop: '50px', paddingBottom: '50px'}}>
-        <div style={{position: 'fixed', top: 20, left: 20, zIndex: 100}}>
-            <Link to="/" className="start-btn" style={{padding: '10px 20px', fontSize: '1rem', textDecoration: 'none'}}>⬅ กลับหน้าหลัก</Link>
-        </div>
+// ถ้ายังไม่มีไฟล์ data/katakana ให้ใช้ข้อมูลจำลองไปก่อนเพื่อให้หน้าเว็บไม่พัง
+const mockKatakana = [
+  { character: 'ア', romaji: 'a' }, { character: 'イ', romaji: 'i' }, { character: 'ウ', romaji: 'u' }, 
+  { character: 'エ', romaji: 'e' }, { character: 'オ', romaji: 'o' },
+  { character: 'カ', romaji: 'ka' }, { character: 'キ', romaji: 'ki' }, { character: 'ク', romaji: 'ku' }, 
+  { character: 'ケ', romaji: 'ke' }, { character: 'コ', romaji: 'ko' }
+];
 
-        <h1 style={{color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>ตารางคาตาคานะ (Katakana Chart)</h1>
-        
-        <div className="chart-container">
-          <div className="chart-grid">
-            {katakanaData.map((item, index) => (
-              <div key={index} className={`chart-item ${!item.character ? 'empty' : ''}`}>
-                <div className="chart-char">{item.character}</div>
-                <div className="chart-romaji">{item.romaji}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+function KatakanaChart() {
+  // เช็คว่ามีข้อมูลจริงไหม ถ้าไม่มีให้ใช้ข้อมูลจำลอง
+  // const data = katakanaData || mockKatakana; 
+  const data = mockKatakana; 
+
+  return (
+    <div className="app-container">
+      <header>
+        <Link to="/" className="back-link">← กลับหน้าหลัก</Link>
+        <h1>Katakana Chart <span className="jp-font">カタカナ</span></h1>
       </header>
+      
+      <main className="chart-container">
+        <div className="character-grid">
+          {data.map((item, index) => (
+            <div key={index} className="char-card">
+              <div className="char-jp">{item.character}</div>
+              <div className="char-ro">{item.romaji}</div>
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }

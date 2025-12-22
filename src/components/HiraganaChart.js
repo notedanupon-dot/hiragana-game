@@ -1,29 +1,33 @@
 import React from 'react';
+import { hiraganaData } from '../data/hiragana'; // ดึงข้อมูลตัวอักษร
 import { Link } from 'react-router-dom';
-import hiraganaData from '../data/hiragana';
 import '../App.css';
 
 function HiraganaChart() {
   return (
-    <div className="App">
-      <header className="App-header" style={{minHeight: '100vh', paddingTop: '50px', paddingBottom: '50px'}}>
-        <div style={{position: 'fixed', top: 20, left: 20, zIndex: 100}}>
-            <Link to="/" className="start-btn" style={{padding: '10px 20px', fontSize: '1rem', textDecoration: 'none'}}>⬅ กลับหน้าหลัก</Link>
-        </div>
-
-        <h1 style={{color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>ตารางฮิรางานะ (Hiragana Chart)</h1>
-        
-        <div className="chart-container">
-          <div className="chart-grid">
-            {hiraganaData.map((item, index) => (
-              <div key={index} className={`chart-item ${!item.character ? 'empty' : ''}`}>
-                <div className="chart-char">{item.character}</div>
-                <div className="chart-romaji">{item.romaji}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="app-container">
+      <header>
+        <Link to="/" className="back-link">← กลับหน้าหลัก</Link>
+        <h1>Hiragana Chart <span className="jp-font">ひらがな</span></h1>
       </header>
+      
+      <main className="chart-container">
+        <div className="character-grid">
+          {hiraganaData.map((item, index) => (
+            <div key={index} className={`char-card ${!item.character ? 'empty' : ''}`}>
+              {/* ถ้ามีตัวอักษร ให้แสดง ถ้าไม่มี (ช่องว่าง) ให้ปล่อยโล่ง */}
+              {item.character ? (
+                <>
+                  <div className="char-jp">{item.character}</div>
+                  <div className="char-ro">{item.romaji}</div>
+                </>
+              ) : (
+                <div className="char-empty"></div>
+              )}
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }
