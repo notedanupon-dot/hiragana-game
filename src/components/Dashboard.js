@@ -1,83 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { getLeaderboard } from '../services/scoreService'; // เรียกใช้ฟังก์ชันดึงอันดับ
+import { getLeaderboard } from '../services/scoreService'; // ดึงข้อมูลจัดอันดับ
+import '../App.css'; // ใช้ CSS กลาง
 
 function Dashboard({ stats, onStart }) {
   const [leaderboard, setLeaderboard] = useState([]);
 
-  // ดึงข้อมูล Ranking เมื่อเข้าหน้า Dashboard
+  // ดึงข้อมูล Hall of Fame เมื่อโหลดหน้า
   useEffect(() => {
-    const fetchRanking = async () => {
-      const data = await getLeaderboard();
-      setLeaderboard(data);
+    const fetchLeaderboard = async () => {
+      try {
+        const data = await getLeaderboard();
+        setLeaderboard(data);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      }
     };
-    fetchRanking();
+    fetchLeaderboard();
   }, []);
 
-  // ฟังก์ชันคำนวณความกว้างของกราฟ (ให้คนคะแนนเยอะสุดเต็มหลอด 100%)
-  const getMaxScore = () => leaderboard.length > 0 ? leaderboard[0].totalScore : 100;
-  
-  const getBarColor = (index) => {
-    if (index === 0) return 'linear-gradient(90deg, #FFD700, #FDB931)'; // ทอง
-    if (index === 1) return 'linear-gradient(90deg, #E0E0E0, #BDBDBD)'; // เงิน
-    if (index === 2) return 'linear-gradient(90deg, #CD7F32, #A0522D)'; // ทองแดง
-    return '#4a90e2';
-  };
+  // คำนวณความแม่นยำ (Accuracy) จากประวัติล่าสุด
+  const lastAccuracy = stats.history && stats.history.length > 0 
+    ? stats.history[stats.history.length - 1].accuracy 
+    : 0;
 
   return (
     <div className="dashboard-container">
-      {/* --- ส่วน Ranking (New!) --- */}
-      <div className="chart-section" style={{ background: '#2c3e50', color: 'white' }}>
-        <h3 className="chart-title" style={{ color: 'white', borderBottom: '1px solid #444' }}>
-          🏆 HALL OF FAME (Top 3)
-        </h3>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
+      
+      {/* 🏆 Hall of Fame Section */}
+      <div className="hall-of-fame-card">
+        <div className="hof-header">
+          <h3>🏆 HALL OF FAME (Top 3)</h3>
+        </div>
+        <div className="hof-list">
           {leaderboard.length === 0 ? (
-            <p style={{ opacity: 0.7 }}>กำลังโหลดอันดับ...</p>
+            <div style={{padding: '10px', color: '#ccc'}}>กำลังโหลด...</div>
           ) : (
             leaderboard.map((user, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '20px', fontWeight: 'bold', textAlign: 'center' }}>#{index + 1}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
-                    <span>{user.username}</span>
-                    <span>{user.totalScore} XP</span>
-                  </div>
-                  <div style={{ 
-                    height: '12px', 
-                    background: 'rgba(255,255,255,0.2)', 
-                    borderRadius: '6px',
-                    overflow: 'hidden' 
-                  }}>
-                    <div style={{ 
-                      width: `${(user.totalScore / getMaxScore()) * 100}%`, 
-                      height: '100%', 
-                      background: getBarColor(index),
-                      transition: 'width 1s ease'
-                    }}></div>
-                  </div>
-                </div>
+              <div key={index} className="hof-item">
+                <span className="rank">#{index + 1}</span>
+                <span className="name">{user.username}</span>
+                <span className="xp">{user.totalScore} XP</span>
               </div>
             ))
           )}
         </div>
+        <div className="hof-footer"></div>
       </div>
 
-      {/* --- ส่วนสถิติส่วนตัว (ของเดิม) --- */}
+      {/* 📊 User Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-value">{stats.totalCorrect}</div>
+          <div className="stat-value">{stats.totalCorrect || 0}</div>
           <div className="stat-label">คะแนนรวมของคุณ</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">
-            {stats.totalAttempts > 0 
-              ? Math.round((stats.totalCorrect / stats.totalAttempts) * 100) 
-              : 0}%
-          </div>
-          <div className="stat-label">ความแม่นยำ</div>
+          <div className="stat-value">{lastAccuracy}%</div>
+          <div className="stat-label">ความแม่นยำล่าสุด</div>
         </div>
       </div>
+
+      {/* ▶️ Start Button (สำคัญมาก ต้องมีปุ่มนี้) */}
+      <div style={{marginTop: '30px'}}>
+        <button className="start-btn" onClick={onStart}>
+          เริ่มเกมทันที
+        </button>
+      </div>
+
     </div>
   );
 }
