@@ -1,160 +1,160 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import vocabData from '../data/vocab';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { vocabData } from '../data/vocab'; // ตรวจสอบว่า path นี้ถูกต้อง
 import '../App.css';
 
+const QUESTION_LIMIT = 10; // จำนวนข้อต่อเกม
+
 function VocabGame() {
-  const [gameState, setGameState] = useState('dashboard');
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [options, setOptions] = useState([]);
+  // --- States ---
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [questionCount, setQuestionCount] = useState(0);
-  const totalQuestions = 10;
+  const [showResult, setShowResult] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
 
-  const [stats, setStats] = useState(() => {
-    const saved = localStorage.getItem('vocabStats');
-    return saved ? JSON.parse(saved) : { history: [], wrongWords: {} };
-  });
+  // --- Init Game (โหลดโจทย์เมื่อเริ่มเกม) ---
+  useEffect(() => {
+    // 1. สุ่มลำดับข้อมูลทั้งหมด
+    const shuffledAll = [...vocabData].sort(() => 0.5 - Math.random());
+    // 2. เลือกมาตามจำนวนที่กำหนด
+    const selectedQuestions = shuffledAll.slice(0, QUESTION_LIMIT);
 
-  const generateQuestion = () => {
-    const randomIndex = Math.floor(Math.random() * vocabData.length);
-    const correct = vocabData[randomIndex];
-    let answers = [correct];
-    while (answers.length < 4) {
-      const random = vocabData[Math.floor(Math.random() * vocabData.length)];
-      if (!answers.find(a => a.meaning === random.meaning)) answers.push(random);
+    // 3. สร้างตัวเลือกคำตอบ (Options) สำหรับแต่ละข้อ
+    const gameQuestions = selectedQuestions.map(question => {
+      // สุ่มตัวหลอก 3 ตัว ที่ไม่ใช่คำตอบที่ถูกต้อง
+      const distractors = vocabData
+        .filter(item => item.meaning !== question.meaning)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+      
+      // รวมคำตอบถูก + ตัวหลอก แล้วสุ่มลำดับ
+      const options = [question, ...distractors].sort(() => 0.5 - Math.random());
+      
+      return { ...question, options };
+    });
+
+    setQuestions(gameQuestions);
+  }, []);
+
+  // --- Handlers ---
+  const handleAnswerClick = (selectedMeaning) => {
+    if (isAnswered) return; // ป้องกันการกดซ้ำ
+
+    const currentQ = questions[currentIndex];
+    const isCorrect = selectedMeaning === currentQ.meaning;
+
+    setSelectedAnswer(selectedMeaning);
+    setIsAnswered(true);
+
+    if (isCorrect) {
+      setScore(score + 1);
     }
-    answers.sort(() => Math.random() - 0.5);
-    setCurrentQuestion(correct);
-    setOptions(answers);
+
+    // รอ 1.5 วินาทีแล้วไปข้อถัดไป
+    setTimeout(() => {
+      if (currentIndex + 1 < QUESTION_LIMIT) {
+        setCurrentIndex(currentIndex + 1);
+        setIsAnswered(false);
+        setSelectedAnswer(null);
+      } else {
+        setShowResult(true); // จบเกม
+      }
+    }, 1500);
   };
 
-  const startGame = () => {
-    setScore(0);
-    setQuestionCount(0);
-    setGameState('playing');
-    generateQuestion();
+  const resetGame = () => {
+    window.location.reload(); // โหลดหน้าใหม่เพื่อนับหนึ่ง
   };
 
-  const handleAnswer = (selectedMeaning) => {
-    const isCorrect = selectedMeaning === currentQuestion.meaning;
-    if (isCorrect) setScore(score + 1);
+  // --- Render: หน้าโหลด ---
+  if (questions.length === 0) {
+    return <div className="app-container" style={{textAlign: 'center'}}>กำลังโหลด...</div>;
+  }
 
-    if (!isCorrect) {
-      const newWrong = { ...stats.wrongWords };
-      // ใช้คำภาษาญี่ปุ่นเป็น key ในกราฟ
-      const wordKey = currentQuestion.word.split(' ')[0]; 
-      newWrong[wordKey] = (newWrong[wordKey] || 0) + 1;
-      setStats(prev => ({ ...prev, wrongWords: newWrong }));
-    }
-
-    const nextCount = questionCount + 1;
-    setQuestionCount(nextCount);
-
-    if (nextCount < totalQuestions) {
-      generateQuestion();
-    } else {
-      finishGame(score + (isCorrect ? 1 : 0));
-    }
-  };
-
-  const finishGame = (finalScore) => {
-    const accuracy = Math.round((finalScore / totalQuestions) * 100);
-    const newHistory = [...stats.history, { date: new Date().toLocaleTimeString(), accuracy }];
-    if (newHistory.length > 10) newHistory.shift();
-
-    const newStats = { ...stats, history: newHistory };
-    setStats(newStats);
-    localStorage.setItem('vocabStats', JSON.stringify(newStats));
-    setGameState('dashboard');
-  };
-
-  const weakSpotsData = Object.keys(stats.wrongWords)
-    .map(key => ({ name: key, count: stats.wrongWords[key] }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
-
-  const globalAccuracy = stats.history.length > 0 
-    ? Math.round(stats.history.reduce((a, b) => a + b.accuracy, 0) / stats.history.length) 
-    : 0;
-
-  if (gameState === 'dashboard') {
+  // --- Render: หน้าสรุปผล ---
+  if (showResult) {
     return (
-      <div className="App">
-        <header className="App-header" style={{background: '#f4f7f6', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-          <div style={{position: 'absolute', top: 20, left: 20}}>
-             <Link to="/" style={{color: '#4a90e2', textDecoration: 'none', fontWeight:'bold'}}>⬅ Back</Link>
+      <div className="app-container">
+        <div className="game-card">
+          <h2 style={{fontSize: '2.5rem', marginBottom: '20px'}}>🎉 จบเกม! 🎉</h2>
+          <p style={{fontSize: '1.5rem', color: 'var(--text-light)'}}>
+            คุณทำได้: <span style={{color: 'var(--primary)', fontWeight: 'bold'}}>{score}</span> / {QUESTION_LIMIT} คะแนน
+          </p>
+          <div style={{marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
+            <button onClick={resetGame} className="start-btn">
+              เล่นอีกครั้ง
+            </button>
+            <Link to="/" className="btn-outline" style={{textAlign: 'center', textDecoration: 'none'}}>
+              กลับหน้าหลัก
+            </Link>
           </div>
-
-          <div className="dashboard-container">
-            <h1 className="dashboard-title">Vocab Mastery <span style={{color:'#f1c40f'}}>単語</span></h1>
-            
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-label">Total Quizzes</div>
-                <div className="stat-value">{stats.history.length}</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-label">Global Accuracy</div>
-                <div className="stat-value">{globalAccuracy}%</div>
-              </div>
-            </div>
-
-            <button className="start-btn" onClick={startGame} style={{backgroundColor: '#f1c40f'}}>Start New Quiz</button>
-
-            <br/><br/>
-
-            <div className="chart-section">
-              <div className="chart-title">Progress History</div>
-              <div style={{ width: '100%', height: 200 }}>
-                <ResponsiveContainer>
-                  <LineChart data={stats.history}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="date" hide />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="accuracy" stroke="#f1c40f" strokeWidth={2} dot={{r:4}} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {weakSpotsData.length > 0 && (
-              <div className="chart-section">
-                <div className="chart-title">Focus Areas (Hard Words)</div>
-                <div style={{ width: '100%', height: 200 }}>
-                  <ResponsiveContainer>
-                    <BarChart layout="vertical" data={weakSpotsData}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" allowDecimals={false} />
-                      <YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#e74c3c" radius={[0, 4, 4, 0]} barSize={20} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
+        </div>
       </div>
     );
   }
 
+  // --- Render: หน้าเล่นเกม (UI ใหม่) ---
+  const currentQ = questions[currentIndex];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <div style={{marginBottom: '20px'}}>ข้อที่ {questionCount + 1} / {totalQuestions}</div>
-        <div className="character-display" style={{fontSize: '3rem'}}>{currentQuestion?.word}</div>
-        <div className="options-grid">
-          {options.map((opt, i) => (
-            <button key={i} className="option-button" onClick={() => handleAnswer(opt.meaning)}>
-              {opt.meaning}
-            </button>
-          ))}
-        </div>
+    <div className="app-container">
+      <header>
+        <h1>Vocabulary Mastery <span className="jp-font">語彙</span></h1>
       </header>
+
+      {/* ✅ ใช้ game-card เหมือนเกมอื่นๆ */}
+      <div className="game-card">
+        
+        {/* ✅ Progress Bar */}
+        <div className="progress-bar">
+          <div 
+            className="fill" 
+            style={{ width: `${((currentIndex) / QUESTION_LIMIT) * 100}%` }}
+          ></div>
+        </div>
+
+        {/* ✅ ส่วนแสดงโจทย์ (ใช้ class ใหม่ .vocab-question) */}
+        <div className="vocab-question">
+          <span className="jp">{currentQ.japanese}</span>
+          <span className="romaji">({currentQ.romaji})</span>
+        </div>
+
+        {/* ✅ Grid ปุ่มคำตอบ */}
+        <div className="options-grid">
+          {currentQ.options.map((option, index) => {
+            // กำหนด class สำหรับแสดงสี ถูก/ผิด
+            let btnClass = "option-btn";
+            if (isAnswered) {
+              if (option.meaning === currentQ.meaning) {
+                btnClass += " correct"; // ปุ่มที่ถูก (สีเขียว)
+              } else if (option.meaning === selectedAnswer) {
+                btnClass += " wrong"; // ปุ่มที่เลือกผิด (สีแดง)
+              }
+            }
+
+            return (
+              <button
+                key={index}
+                className={btnClass}
+                onClick={() => handleAnswerClick(option.meaning)}
+                disabled={isAnswered}
+                style={{ fontSize: '1.2rem' }} // ปรับขนาดฟอนต์ให้เหมาะกับภาษาอังกฤษ
+              >
+                {option.meaning}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ✅ Footer แสดงคะแนนและปุ่มออก */}
+        <div className="game-footer">
+          <span>Score: {score}</span>
+          <Link to="/" className="text-btn">Quit</Link>
+        </div>
+
+      </div>
     </div>
   );
 }

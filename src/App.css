@@ -409,3 +409,30 @@ header h1 {
   color: #2c3e50;
   background-color: #f0fff4;
 }
+
+/* =========================================
+   7. VOCABULARY GAME SPECIFIC
+   ========================================= */
+/* สไตล์สำหรับโจทย์ที่เป็นคำศัพท์ (ตัวหนังสือจะเล็กกว่าแบบตัวเดียว) */
+.vocab-question {
+  font-size: 4rem; /* ขนาดเล็กลงจาก 8rem เพื่อให้พอดีกับคำยาวๆ */
+  font-weight: bold;
+  color: var(--text);
+  margin: 20px 0;
+  line-height: 1.2;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column; /* เรียงภาษาญี่ปุ่นกับโรมาจิลงมา */
+  align-items: center;
+  justify-content: center;
+}
+
+.vocab-question .jp {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.vocab-question .romaji {
+  font-size: 2rem;
+  color: var(--text-light);
+  margin-top: 10px;
+}

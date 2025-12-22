@@ -1,128 +1,68 @@
-const vocabData = [
-  // --- หมวดคำทักทายและคำทั่วไป (Greetings & Basics) ---
-  { word: 'こんにちは (Konnichiwa)', meaning: 'Hello' },
-  { word: 'ありがとう (Arigatou)', meaning: 'Thank you' },
-  { word: 'おはよう (Ohayou)', meaning: 'Good Morning' },
-  { word: 'こんばんは (Konbanwa)', meaning: 'Good Evening' },
-  { word: 'さようなら (Sayounara)', meaning: 'Goodbye' },
-  { word: 'はい (Hai)', meaning: 'Yes' },
-  { word: 'いいえ (Iie)', meaning: 'No' },
-  { word: 'すみません (Sumimasen)', meaning: 'Excuse me / Sorry' },
-  { word: 'ごめんなさい (Gomennasai)', meaning: 'I am sorry' },
-  { word: 'はじめまして (Hajimemashite)', meaning: 'Nice to meet you' },
+// src/data/vocab.js
 
-  // --- หมวดตัวเลข (Numbers) ---
-  { word: 'いち (Ichi)', meaning: 'One' },
-  { word: 'に (Ni)', meaning: 'Two' },
-  { word: 'さん (San)', meaning: 'Three' },
-  { word: 'よん (Yon)', meaning: 'Four' },
-  { word: 'ご (Go)', meaning: 'Five' },
-  { word: 'ろく (Roku)', meaning: 'Six' },
-  { word: 'なな (Nana)', meaning: 'Seven' },
-  { word: 'はち (Hachi)', meaning: 'Eight' },
-  { word: 'きゅう (Kyuu)', meaning: 'Nine' },
-  { word: 'じゅう (Juu)', meaning: 'Ten' },
-  { word: 'ひゃく (Hyaku)', meaning: 'Hundred' },
-
-  // --- หมวดคนและสรรพนาม (People & Pronouns) ---
-  { word: 'わたし (Watashi)', meaning: 'I / Me' },
-  { word: 'あなた (Anata)', meaning: 'You' },
-  { word: 'がくせい (Gakusei)', meaning: 'Student' },
-  { word: 'せんせい (Sensei)', meaning: 'Teacher' },
-  { word: 'ともだち (Tomodachi)', meaning: 'Friend' },
-  { word: 'ひと (Hito)', meaning: 'Person' },
-  { word: 'かぞく (Kazoku)', meaning: 'Family' },
-  { word: 'おとうさん (Otousan)', meaning: 'Father' },
-  { word: 'おかあさん (Okaasan)', meaning: 'Mother' },
-  { word: 'こども (Kodomo)', meaning: 'Child' },
-  { word: 'おとこ (Otoko)', meaning: 'Man' },
-  { word: 'おんな (Onna)', meaning: 'Woman' },
-
-  // --- หมวดเวลา (Time) ---
-  { word: 'いま (Ima)', meaning: 'Now' },
-  { word: 'きょう (Kyou)', meaning: 'Today' },
-  { word: 'あした (Ashita)', meaning: 'Tomorrow' },
-  { word: 'きのう (Kinou)', meaning: 'Yesterday' },
-  { word: 'まいにち (Mainichi)', meaning: 'Every day' },
-  { word: 'あさ (Asa)', meaning: 'Morning' },
-  { word: 'ひる (Hiru)', meaning: 'Noon / Daytime' },
-  { word: 'よる (Yoru)', meaning: 'Night' },
-  { word: 'じかん (Jikan)', meaning: 'Time' },
-  { word: 'しゅう (Shuu)', meaning: 'Week' },
-
-  // --- หมวดอาหารและเครื่องดื่ม (Food & Drink) ---
-  { word: 'ごはん (Gohan)', meaning: 'Rice / Meal' },
-  { word: 'ぱん (Pan)', meaning: 'Bread' },
-  { word: 'みず (Mizu)', meaning: 'Water' },
-  { word: 'おちゃ (Ocha)', meaning: 'Tea' },
-  { word: 'にく (Niku)', meaning: 'Meat' },
-  { word: 'さかな (Sakana)', meaning: 'Fish' },
-  { word: 'やさい (Yasai)', meaning: 'Vegetable' },
-  { word: 'くだもの (Kudamono)', meaning: 'Fruit' },
-  { word: 'たまご (Tamago)', meaning: 'Egg' },
-  { word: 'ぎゅうにゅう (Gyuunyuu)', meaning: 'Milk' },
-
-  // --- หมวดสัตว์ (Animals) ---
-  { word: 'いぬ (Inu)', meaning: 'Dog' },
-  { word: 'ねこ (Neko)', meaning: 'Cat' },
-  { word: 'とり (Tori)', meaning: 'Bird' },
-  { word: 'うし (Ushi)', meaning: 'Cow' },
-  { word: 'うま (Uma)', meaning: 'Horse' },
-
-  // --- หมวดสิ่งของและสถานที่ (Objects & Places) ---
-  { word: 'ほん (Hon)', meaning: 'Book' },
-  { word: 'くるま (Kuruma)', meaning: 'Car' },
-  { word: 'いえ (Ie)', meaning: 'House' },
-  { word: 'がっこう (Gakkou)', meaning: 'School' },
-  { word: 'えき (Eki)', meaning: 'Station' },
-  { word: 'みせ (Mise)', meaning: 'Shop' },
-  { word: 'へや (Heya)', meaning: 'Room' },
-  { word: 'つくえ (Tsukue)', meaning: 'Desk' },
-  { word: 'いす (Isu)', meaning: 'Chair' },
-  { word: 'でんわ (Denwa)', meaning: 'Telephone' },
-  { word: 'にほん (Nihon)', meaning: 'Japan' },
-  { word: 'くに (Kuni)', meaning: 'Country' },
-
-  // --- หมวดคำกริยา (Verbs) ---
-  { word: 'たべる (Taberu)', meaning: 'To Eat' },
-  { word: 'のむ (Nomu)', meaning: 'To Drink' },
-  { word: 'みる (Miru)', meaning: 'To See / Watch' },
-  { word: 'きく (Kiku)', meaning: 'To Hear / Listen' },
-  { word: 'いく (Iku)', meaning: 'To Go' },
-  { word: 'くる (Kuru)', meaning: 'To Come' },
-  { word: 'かえる (Kaeru)', meaning: 'To Return' },
-  { word: 'かう (Kau)', meaning: 'To Buy' },
-  { word: 'よむ (Yomu)', meaning: 'To Read' },
-  { word: 'かく (Kaku)', meaning: 'To Write' },
-  { word: 'はなす (Hanasu)', meaning: 'To Speak' },
-  { word: 'ねる (Neru)', meaning: 'To Sleep' },
-  { word: 'おきる (Okiru)', meaning: 'To Wake up' },
-  { word: 'する (Suru)', meaning: 'To Do' },
-  { word: 'べんきょうする (Benkyou suru)', meaning: 'To Study' },
-
-  // --- หมวดคำคุณศัพท์ (Adjectives) ---
-  { word: 'おおきい (Ookii)', meaning: 'Big' },
-  { word: 'ちいさい (Chiisai)', meaning: 'Small' },
-  { word: 'あたらしい (Atarashii)', meaning: 'New' },
-  { word: 'ふるい (Furui)', meaning: 'Old' },
-  { word: 'いい (Ii)', meaning: 'Good' },
-  { word: 'わるい (Warui)', meaning: 'Bad' },
-  { word: 'たかい (Takai)', meaning: 'Expensive / High' },
-  { word: 'やすい (Yasui)', meaning: 'Cheap' },
-  { word: 'あつい (Atsui)', meaning: 'Hot (Weather)' },
-  { word: 'さむい (Samui)', meaning: 'Cold (Weather)' },
-  { word: 'おいしい (Oishii)', meaning: 'Delicious' },
-  { word: 'たのしい (Tanoshii)', meaning: 'Fun' },
-  { word: 'むずかしい (Muzukashii)', meaning: 'Difficult' },
-  { word: 'かんたん (Kantan)', meaning: 'Easy' },
-  { word: 'すき (Suki)', meaning: 'Like' },
-
-  // --- หมวดสี (Colors) ---
-  { word: 'あか (Aka)', meaning: 'Red' },
-  { word: 'あお (Ao)', meaning: 'Blue' },
-  { word: 'しろ (Shiro)', meaning: 'White' },
-  { word: 'くろ (Kuro)', meaning: 'Black' },
-  { word: 'きいろ (Kiiro)', meaning: 'Yellow' }
+// ✅ สังเกตคำว่า "export const" ด้านหน้า นี่คือจุดสำคัญที่ทำให้ error หายไปครับ
+export const vocabData = [
+  {
+    japanese: 'おはよう',
+    romaji: 'ohayou',
+    meaning: 'Good Morning'
+  },
+  {
+    japanese: 'こんにちは',
+    romaji: 'konnichiwa',
+    meaning: 'Hello'
+  },
+  {
+    japanese: 'さようなら',
+    romaji: 'sayounara',
+    meaning: 'Goodbye'
+  },
+  {
+    japanese: 'ありがとう',
+    romaji: 'arigatou',
+    meaning: 'Thank you'
+  },
+  {
+    japanese: 'すみません',
+    romaji: 'sumimasen',
+    meaning: 'Excuse me / Sorry'
+  },
+  {
+    japanese: 'はい',
+    romaji: 'hai',
+    meaning: 'Yes'
+  },
+  {
+    japanese: 'いいえ',
+    romaji: 'iie',
+    meaning: 'No'
+  },
+  {
+    japanese: 'ねこ',
+    romaji: 'neko',
+    meaning: 'Cat'
+  },
+  {
+    japanese: 'いぬ',
+    romaji: 'inu',
+    meaning: 'Dog'
+  },
+  {
+    japanese: 'みず',
+    romaji: 'mizu',
+    meaning: 'Water'
+  },
+  {
+    japanese: 'ごはん',
+    romaji: 'gohan',
+    meaning: 'Rice / Meal'
+  },
+  {
+    japanese: 'ほん',
+    romaji: 'hon',
+    meaning: 'Book'
+  }
 ];
 
+// แถม export default ไว้กันเหนียว
 export default vocabData;
