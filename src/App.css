@@ -347,3 +347,57 @@ header h1 {
   .chart-romaji { font-size: 0.7rem; }
   .hiragana-char { font-size: 6rem; } /* ลดขนาดโจทย์ในจอมือถือเล็กๆ */
 }
+
+/* --- Menu Styling --- */
+
+.menu-section {
+  margin-bottom: 40px; /* เว้นระยะห่างระหว่างกลุ่มเกมกับกลุ่มตาราง */
+}
+
+.menu-section h3 {
+  color: var(--text);
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+}
+
+.button-list {
+  display: flex;
+  flex-direction: column; /* เรียงลงมาแนวตั้ง */
+  gap: 15px; /* ✅ นี่คือตัวช่วยเว้นระยะห่าง (Gap) ครับ */
+  max-width: 400px; /* ไม่ให้ปุ่มกว้างเกินไป */
+  margin: 0 auto;   /* จัดกึ่งกลาง */
+}
+
+/* ดีไซน์ตัวปุ่มเมนู */
+.menu-item {
+  display: block; /* สำคัญ! ทำให้กินพื้นที่เต็มความกว้าง */
+  padding: 18px 20px;
+  background-color: white;
+  color: var(--text);
+  text-decoration: none; /* เอาขีดเส้นใต้ออก */
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* เงาบางๆ */
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
+.menu-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-3px); /* ลอยขึ้นนิดนึง */
+  color: var(--primary);
+  background-color: #f0f7ff;
+}
+
+/* ปุ่มประเภทตาราง (Secondary) ให้สีต่างนิดหน่อย */
+.menu-item.secondary {
+  border-left: 5px solid #4cd964; /* แถบสีเขียวข้างหน้า */
+}
+
+.menu-item.secondary:hover {
+  border-color: #4cd964;
+  color: #2c3e50;
+  background-color: #f0fff4;
+}

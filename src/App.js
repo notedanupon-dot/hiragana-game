@@ -11,30 +11,39 @@ import KatakanaChart from './components/KatakanaChart'; // เพิ่มให
 
 function Home() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1 className="main-title">Japanese Master 🇯🇵</h1>
-        <p className="subtitle">ฝึกภาษาญี่ปุ่นวันละนิด เก่งขึ้นแน่นอน!</p>
-        
-        <div className="menu-grid">
-          {/* โซนฝึกฝน (Games) */}
-          <div className="menu-section">
-            <h3>🎮 แบบฝึกหัด (Games)</h3>
-            <Link to="/hiragana" className="menu-button">ฝึกฮิรางานะ (Hiragana)</Link>
-            <Link to="/katakana" className="menu-button">ฝึกคาตาคานะ (Katakana)</Link>
-            <Link to="/vocab" className="menu-button">ทายคำศัพท์ (Vocabulary)</Link>
-          </div>
+    <div className="dashboard-container">
+  <h1>Japanese Master 🇯🇵</h1>
+  <p>ฝึกภาษาญี่ปุ่นวันละนิด เก่งขึ้นแน่นอน!</p>
 
-          {/* โซนความรู้ (Charts) - เพิ่มใหม่ */}
-          <div className="menu-section">
-            <h3>📖 ตารางตัวอักษร (Charts)</h3>
-            <Link to="/chart-hiragana" className="menu-button secondary">ตารางฮิรางานะ</Link>
-            <Link to="/chart-katakana" className="menu-button secondary">ตารางคาตาคานะ</Link>
-          </div>
-        </div>
-
-      </header>
+  {/* --- ส่วนที่ 1: เกม --- */}
+  <div className="menu-section">
+    <h3>🎮 แบบฝึกหัด (Games)</h3>
+    <div className="button-list">
+      <Link to="/hiragana-game" className="menu-item">
+        ฝึกฮิรางานะ (Hiragana)
+      </Link>
+      <Link to="/katakana-game" className="menu-item">
+        ฝึกคาตาคานะ (Katakana)
+      </Link>
+      <Link to="/vocabulary-game" className="menu-item">
+        ทายคำศัพท์ (Vocabulary)
+      </Link>
     </div>
+  </div>
+
+  {/* --- ส่วนที่ 2: ตาราง --- */}
+  <div className="menu-section">
+    <h3>📖 ตารางตัวอักษร (Charts)</h3>
+    <div className="button-list">
+      <Link to="/chart-hiragana" className="menu-item secondary">
+        ตารางฮิรางานะ
+      </Link>
+      <Link to="/chart-katakana" className="menu-item secondary">
+        ตารางคาตาคานะ
+      </Link>
+    </div>
+  </div>
+</div>
   );
 }
 
