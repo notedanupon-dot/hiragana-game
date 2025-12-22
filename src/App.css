@@ -30,6 +30,14 @@ body {
   padding: 20px 0; /* เว้นขอบบนล่างนิดหน่อย */
 }
 
+/* เพิ่มส่วนนี้เพื่อให้ App ขยายเต็มหน้าจอ */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
 /* Container หลักของแอป */
 .app-container {
   width: 100%;
