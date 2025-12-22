@@ -4,12 +4,13 @@ import { getFirestore } from "firebase/firestore";
 
 // ⚠️ เอาค่าจาก Firebase Console มาแปะทับตรงนี้ครับ
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "...",
-  appId: "..."
+  apiKey: "AIzaSyDn7bqDndbozts8-J9Gv6HgCgYJWRzPSHs",
+  authDomain: "japanese-master-e1f13.firebaseapp.com",
+  projectId: "japanese-master-e1f13",
+  storageBucket: "japanese-master-e1f13.firebasestorage.app",
+  messagingSenderId: "206529901066",
+  appId: "1:206529901066:web:ad075fb8fc652a2db125f3",
+  measurementId: "G-67CLC24GGN"
 };
 
 const app = initializeApp(firebaseConfig);
