@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/hiragana-game/static/css/main.f12782e1.css",
-    "main.js": "/hiragana-game/static/js/main.45b002ca.js",
+    "main.css": "/hiragana-game/static/css/main.c72c5572.css",
+    "main.js": "/hiragana-game/static/js/main.9eca3aff.js",
     "static/js/453.9d612130.chunk.js": "/hiragana-game/static/js/453.9d612130.chunk.js",
     "index.html": "/hiragana-game/index.html",
-    "main.f12782e1.css.map": "/hiragana-game/static/css/main.f12782e1.css.map",
-    "main.45b002ca.js.map": "/hiragana-game/static/js/main.45b002ca.js.map",
+    "main.c72c5572.css.map": "/hiragana-game/static/css/main.c72c5572.css.map",
+    "main.9eca3aff.js.map": "/hiragana-game/static/js/main.9eca3aff.js.map",
     "453.9d612130.chunk.js.map": "/hiragana-game/static/js/453.9d612130.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f12782e1.css",
-    "static/js/main.45b002ca.js"
+    "static/css/main.c72c5572.css",
+    "static/js/main.9eca3aff.js"
   ]
 }
