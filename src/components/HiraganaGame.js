@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { hiraganaData } from '../data/hiragana';
+import { hiraganaData } from '../data/hiragana'; // ✅ ตรวจสอบ import ให้ถูกต้อง
 import Game from './Game';
 import Dashboard from '../components/Dashboard';
+import { saveScoreToFirebase } from '../services/scoreService'; // ✅ ระบบ Firebase
 import '../App.css';
 
-// ✅ 1. Import ฟังก์ชันบันทึกคะแนน
-import { saveScoreToFirebase } from '../services/scoreService';
-
-// ✅ 2. รับ username เป็น Props จาก App.js
 function HiraganaGame({ username }) {
-  const [view, setView] = useState('dashboard'); // dashboard, game, result
+  const [view, setView] = useState('dashboard'); // สถานะ: 'dashboard' หรือ 'game'
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
     totalCorrect: 0,
@@ -17,10 +14,10 @@ function HiraganaGame({ username }) {
     charStats: {} 
   });
 
-  // กรองเอาเฉพาะตัวที่มีข้อมูล (ตัดช่องว่างทิ้ง)
-  const activeGameData = hiraganaData.filter(item => item.character && item.character !== '');
+  // กรองเอาเฉพาะตัวที่มีข้อมูล (ป้องกันตัวว่างถ้ามี)
+  const activeGameData = hiraganaData ? hiraganaData.filter(item => item.character && item.character !== '') : [];
 
-  // Load data from LocalStorage on mount
+  // 1. โหลดสถิติจากเครื่อง (Local Storage) - ใช้คีย์ 'hiraganaUserStats'
   useEffect(() => {
     const savedData = localStorage.getItem('hiraganaUserStats');
     if (savedData) {
@@ -28,13 +25,14 @@ function HiraganaGame({ username }) {
     }
   }, []);
 
-  // Save data whenever it changes
+  // 2. บันทึกสถิติลงเครื่องเมื่อมีการเปลี่ยนแปลง
   useEffect(() => {
     localStorage.setItem('hiraganaUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
+  // 3. ฟังก์ชันจบเกม
   const handleGameEnd = (sessionData) => {
-    // 1. Update History (Local)
+    // --- Update Local Stats ---
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -42,7 +40,6 @@ function HiraganaGame({ username }) {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    // 2. Update Character Stats (Local)
     const newCharStats = { ...userStats.charStats };
     sessionData.details.forEach(item => {
       if (item.romaji) {
@@ -52,13 +49,12 @@ function HiraganaGame({ username }) {
       }
     });
 
-    // ✅ 3. บันทึกคะแนนลง Firebase (Global Ranking)
-    // เช็คว่ามี username ไหม (กันเหนียว) แล้วส่งคะแนนรอบนี้ไปบวกเพิ่ม
+    // --- ✅ Save to Firebase ---
     if (username) {
       saveScoreToFirebase(username, sessionData.score);
     }
 
-    // อัปเดต State ของเครื่องตัวเอง
+    // --- Update State ---
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
@@ -66,7 +62,7 @@ function HiraganaGame({ username }) {
       charStats: newCharStats
     });
 
-    setView('dashboard');
+    setView('dashboard'); // กลับไปหน้า Dashboard
   };
 
   return (
@@ -76,6 +72,7 @@ function HiraganaGame({ username }) {
       </header>
       
       <main>
+        {/* เลือกแสดงผลตาม State view */}
         {view === 'dashboard' && (
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
