@@ -1,14 +1,21 @@
-export const hiraganaData = [
-  { char: "あ", romaji: "a" }, { char: "い", romaji: "i" }, { char: "う", romaji: "u" }, { char: "え", romaji: "e" }, { char: "お", romaji: "o" },
-  { char: "か", romaji: "ka" }, { char: "き", romaji: "ki" }, { char: "く", romaji: "ku" }, { char: "け", romaji: "ke" }, { char: "こ", romaji: "ko" },
-  { char: "さ", romaji: "sa" }, { char: "し", romaji: "shi" }, { char: "す", romaji: "su" }, { char: "せ", romaji: "se" }, { char: "そ", romaji: "so" },
-  { char: "た", romaji: "ta" }, { char: "ち", romaji: "chi" }, { char: "つ", romaji: "tsu" }, { char: "て", romaji: "te" }, { char: "と", romaji: "to" },
-  { char: "な", romaji: "na" }, { char: "に", romaji: "ni" }, { char: "ぬ", romaji: "nu" }, { char: "ね", romaji: "ne" }, { char: "の", romaji: "no" },
-  { char: "は", romaji: "ha" }, { char: "ひ", romaji: "hi" }, { char: "ふ", romaji: "fu" }, { char: "へ", romaji: "he" }, { char: "ほ", romaji: "ho" },
-  { char: "ま", romaji: "ma" }, { char: "み", romaji: "mi" }, { char: "む", romaji: "mu" }, { char: "め", romaji: "me" }, { char: "も", romaji: "mo" },
-  { char: "や", romaji: "ya" }, { char: "ゆ", romaji: "yu" }, { char: "よ", romaji: "yo" },
-  { char: "ら", romaji: "ra" }, { char: "り", romaji: "ri" }, { char: "る", romaji: "ru" }, { char: "れ", romaji: "re" }, { char: "ろ", romaji: "ro" },
-  { char: "わ", romaji: "wa" }, { char: "を", romaji: "wo" }, { char: "ん", romaji: "n" }
+const hiraganaData = [
+  { character: 'あ', romaji: 'a' }, { character: 'い', romaji: 'i' }, { character: 'う', romaji: 'u' }, { character: 'え', romaji: 'e' }, { character: 'お', romaji: 'o' },
+  { character: 'か', romaji: 'ka' }, { character: 'き', romaji: 'ki' }, { character: 'く', romaji: 'ku' }, { character: 'け', romaji: 'ke' }, { character: 'こ', romaji: 'ko' },
+  { character: 'さ', romaji: 'sa' }, { character: 'し', romaji: 'shi' }, { character: 'す', romaji: 'su' }, { character: 'せ', romaji: 'se' }, { character: 'そ', romaji: 'so' },
+  { character: 'た', romaji: 'ta' }, { character: 'ち', romaji: 'chi' }, { character: 'つ', romaji: 'tsu' }, { character: 'て', romaji: 'te' }, { character: 'と', romaji: 'to' },
+  { character: 'な', romaji: 'na' }, { character: 'に', romaji: 'ni' }, { character: 'ぬ', romaji: 'nu' }, { character: 'ね', romaji: 'ne' }, { character: 'の', romaji: 'no' },
+  { character: 'は', romaji: 'ha' }, { character: 'ひ', romaji: 'hi' }, { character: 'ふ', romaji: 'fu' }, { character: 'へ', romaji: 'he' }, { character: 'ほ', romaji: 'ho' },
+  { character: 'ま', romaji: 'ma' }, { character: 'み', romaji: 'mi' }, { character: 'む', romaji: 'mu' }, { character: 'め', romaji: 'me' }, { character: 'も', romaji: 'mo' },
+  { character: 'や', romaji: 'ya' }, { character: 'ゆ', romaji: 'yu' }, { character: 'よ', romaji: 'yo' },
+  { character: 'ら', romaji: 'ra' }, { character: 'り', romaji: 'ri' }, { character: 'る', romaji: 'ru' }, { character: 'れ', romaji: 're' }, { character: 'ろ', romaji: 'ro' },
+  { character: 'わ', romaji: 'wa' }, { character: 'を', romaji: 'wo' }, { character: 'ん', romaji: 'n' }
 ];
 
+// บรรทัดนี้สำคัญที่สุดครับ! ต้องมี
+// --- ส่วนท้ายของไฟล์ hiragana.js ---
+
+// 1. ส่งออกสำหรับไฟล์ที่เรียกแบบ { hiraganaData } (เช่น HiraganaGame ตัวเก่า)
+export { hiraganaData };
+
+// 2. ส่งออกสำหรับไฟล์ที่เรียกแบบ hiraganaData (เช่น HiraganaChart ตัวใหม่)
 export default hiraganaData;
