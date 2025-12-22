@@ -1,72 +1,85 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { getLeaderboard } from '../services/scoreService'; // เรียกใช้ฟังก์ชันดึงอันดับ
 
-const Dashboard = ({ stats, onStart }) => {
-  const accuracy = stats.totalAttempts > 0 
-    ? Math.round((stats.totalCorrect / stats.totalAttempts) * 100) 
-    : 0;
+function Dashboard({ stats, onStart }) {
+  const [leaderboard, setLeaderboard] = useState([]);
 
-  // Process data for "Weakest Characters" chart
-  const weakCharsData = Object.keys(stats.charStats)
-    .map(key => {
-      const { correct, attempts } = stats.charStats[key];
-      return {
-        name: key,
-        accuracy: Math.round((correct / attempts) * 100)
-      };
-    })
-    .sort((a, b) => a.accuracy - b.accuracy) // Sort lowest accuracy first
-    .slice(0, 5); // Take top 5 worst
+  // ดึงข้อมูล Ranking เมื่อเข้าหน้า Dashboard
+  useEffect(() => {
+    const fetchRanking = async () => {
+      const data = await getLeaderboard();
+      setLeaderboard(data);
+    };
+    fetchRanking();
+  }, []);
+
+  // ฟังก์ชันคำนวณความกว้างของกราฟ (ให้คนคะแนนเยอะสุดเต็มหลอด 100%)
+  const getMaxScore = () => leaderboard.length > 0 ? leaderboard[0].totalScore : 100;
+  
+  const getBarColor = (index) => {
+    if (index === 0) return 'linear-gradient(90deg, #FFD700, #FDB931)'; // ทอง
+    if (index === 1) return 'linear-gradient(90deg, #E0E0E0, #BDBDBD)'; // เงิน
+    if (index === 2) return 'linear-gradient(90deg, #CD7F32, #A0522D)'; // ทองแดง
+    return '#4a90e2';
+  };
 
   return (
-    <div className="dashboard">
-      <div className="stats-overview">
-        <div className="stat-card">
-          <h3>Total Quizzes</h3>
-          <p>{stats.history.length}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Global Accuracy</h3>
-          <p>{accuracy}%</p>
+    <div className="dashboard-container">
+      {/* --- ส่วน Ranking (New!) --- */}
+      <div className="chart-section" style={{ background: '#2c3e50', color: 'white' }}>
+        <h3 className="chart-title" style={{ color: 'white', borderBottom: '1px solid #444' }}>
+          🏆 HALL OF FAME (Top 3)
+        </h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
+          {leaderboard.length === 0 ? (
+            <p style={{ opacity: 0.7 }}>กำลังโหลดอันดับ...</p>
+          ) : (
+            leaderboard.map((user, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '20px', fontWeight: 'bold', textAlign: 'center' }}>#{index + 1}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                    <span>{user.username}</span>
+                    <span>{user.totalScore} XP</span>
+                  </div>
+                  <div style={{ 
+                    height: '12px', 
+                    background: 'rgba(255,255,255,0.2)', 
+                    borderRadius: '6px',
+                    overflow: 'hidden' 
+                  }}>
+                    <div style={{ 
+                      width: `${(user.totalScore / getMaxScore()) * 100}%`, 
+                      height: '100%', 
+                      background: getBarColor(index),
+                      transition: 'width 1s ease'
+                    }}></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
-      <div className="action-area">
-        <button className="start-btn" onClick={onStart}>Start New Quiz</button>
-      </div>
-
-      <div className="charts-container">
-        <div className="chart-wrapper">
-          <h4>Progress History</h4>
-          {stats.history.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={stats.history.slice(-10)}> 
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" hide />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Line type="monotone" dataKey="accuracy" stroke="#8884d8" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : <p className="no-data">Play a game to see your trend!</p>}
+      {/* --- ส่วนสถิติส่วนตัว (ของเดิม) --- */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-value">{stats.totalCorrect}</div>
+          <div className="stat-label">คะแนนรวมของคุณ</div>
         </div>
-
-        <div className="chart-wrapper">
-          <h4>Focus Areas (Lowest Accuracy)</h4>
-          {weakCharsData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={weakCharsData} layout="vertical">
-                <XAxis type="number" domain={[0, 100]} hide />
-                <YAxis dataKey="name" type="category" width={40} />
-                <Tooltip />
-                <Bar dataKey="accuracy" fill="#ff6b6b" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : <p className="no-data">No data yet.</p>}
+        <div className="stat-card">
+          <div className="stat-value">
+            {stats.totalAttempts > 0 
+              ? Math.round((stats.totalCorrect / stats.totalAttempts) * 100) 
+              : 0}%
+          </div>
+          <div className="stat-label">ความแม่นยำ</div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Dashboard;

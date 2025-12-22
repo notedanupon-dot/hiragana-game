@@ -4,7 +4,11 @@ import Game from './Game';
 import Dashboard from '../components/Dashboard';
 import '../App.css';
 
-function HiraganaGame() {
+// ✅ 1. Import ฟังก์ชันบันทึกคะแนน
+import { saveScoreToFirebase } from '../services/scoreService';
+
+// ✅ 2. รับ username เป็น Props จาก App.js
+function HiraganaGame({ username }) {
   const [view, setView] = useState('dashboard'); // dashboard, game, result
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
@@ -13,8 +17,7 @@ function HiraganaGame() {
     charStats: {} 
   });
 
-  // ✅ แก้ไขจุดที่ 1: สร้างตัวแปรใหม่ กรองเอาเฉพาะตัวที่มีข้อมูล (ตัดช่องว่างทิ้ง)
-  // เพื่อไม่ให้ Game สุ่มเจอโจทย์ว่างๆ
+  // กรองเอาเฉพาะตัวที่มีข้อมูล (ตัดช่องว่างทิ้ง)
   const activeGameData = hiraganaData.filter(item => item.character && item.character !== '');
 
   // Load data from LocalStorage on mount
@@ -31,7 +34,7 @@ function HiraganaGame() {
   }, [userStats]);
 
   const handleGameEnd = (sessionData) => {
-    // 1. Update History
+    // 1. Update History (Local)
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -39,10 +42,9 @@ function HiraganaGame() {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    // 2. Update Character Stats
+    // 2. Update Character Stats (Local)
     const newCharStats = { ...userStats.charStats };
     sessionData.details.forEach(item => {
-      // ป้องกัน error กรณี romaji ไม่มีค่า
       if (item.romaji) {
           if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
           newCharStats[item.romaji].attempts += 1;
@@ -50,6 +52,13 @@ function HiraganaGame() {
       }
     });
 
+    // ✅ 3. บันทึกคะแนนลง Firebase (Global Ranking)
+    // เช็คว่ามี username ไหม (กันเหนียว) แล้วส่งคะแนนรอบนี้ไปบวกเพิ่ม
+    if (username) {
+      saveScoreToFirebase(username, sessionData.score);
+    }
+
+    // อัปเดต State ของเครื่องตัวเอง
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
@@ -71,7 +80,6 @@ function HiraganaGame() {
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
         {view === 'game' && (
-          /* ✅ แก้ไขจุดที่ 2: ส่ง activeGameData (ที่กรองแล้ว) แทน hiraganaData ตัวเดิม */
           <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
         )}
       </main>

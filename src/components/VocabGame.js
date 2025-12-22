@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { vocabData } from '../data/vocab'; // ตรวจสอบว่า path นี้ถูกต้อง
+import { vocabData } from '../data/vocab';
 import '../App.css';
 
-const QUESTION_LIMIT = 10; // จำนวนข้อต่อเกม
+// ✅ 1. Import ฟังก์ชันสำหรับบันทึกคะแนน
+import { saveScoreToFirebase } from '../services/scoreService';
 
-function VocabGame() {
+const QUESTION_LIMIT = 10;
+
+// ✅ 2. รับ username เข้ามาเพื่อใช้บันทึกคะแนน
+function VocabGame({ username }) {
   // --- States ---
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,22 +18,17 @@ function VocabGame() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  // --- Init Game (โหลดโจทย์เมื่อเริ่มเกม) ---
+  // --- Init Game ---
   useEffect(() => {
-    // 1. สุ่มลำดับข้อมูลทั้งหมด
     const shuffledAll = [...vocabData].sort(() => 0.5 - Math.random());
-    // 2. เลือกมาตามจำนวนที่กำหนด
     const selectedQuestions = shuffledAll.slice(0, QUESTION_LIMIT);
 
-    // 3. สร้างตัวเลือกคำตอบ (Options) สำหรับแต่ละข้อ
     const gameQuestions = selectedQuestions.map(question => {
-      // สุ่มตัวหลอก 3 ตัว ที่ไม่ใช่คำตอบที่ถูกต้อง
       const distractors = vocabData
         .filter(item => item.meaning !== question.meaning)
         .sort(() => 0.5 - Math.random())
         .slice(0, 3);
       
-      // รวมคำตอบถูก + ตัวหลอก แล้วสุ่มลำดับ
       const options = [question, ...distractors].sort(() => 0.5 - Math.random());
       
       return { ...question, options };
@@ -40,40 +39,51 @@ function VocabGame() {
 
   // --- Handlers ---
   const handleAnswerClick = (selectedMeaning) => {
-    if (isAnswered) return; // ป้องกันการกดซ้ำ
+    if (isAnswered) return;
 
     const currentQ = questions[currentIndex];
     const isCorrect = selectedMeaning === currentQ.meaning;
+
+    // คำนวณคะแนนใหม่ทันที (เพราะ state score จะอัปเดตในรอบถัดไป)
+    const newScore = isCorrect ? score + 1 : score;
 
     setSelectedAnswer(selectedMeaning);
     setIsAnswered(true);
 
     if (isCorrect) {
-      setScore(score + 1);
+      setScore(newScore);
     }
 
-    // รอ 1.5 วินาทีแล้วไปข้อถัดไป
+    // รอ 1.5 วินาที
     setTimeout(() => {
       if (currentIndex + 1 < QUESTION_LIMIT) {
+        // ไปข้อถัดไป
         setCurrentIndex(currentIndex + 1);
         setIsAnswered(false);
         setSelectedAnswer(null);
       } else {
-        setShowResult(true); // จบเกม
+        // --- จบเกม ---
+        
+        // ✅ 3. ส่งคะแนนไปบันทึกที่ Firebase
+        if (username) {
+          saveScoreToFirebase(username, newScore);
+        }
+
+        setShowResult(true);
       }
     }, 1500);
   };
 
   const resetGame = () => {
-    window.location.reload(); // โหลดหน้าใหม่เพื่อนับหนึ่ง
+    window.location.reload();
   };
 
-  // --- Render: หน้าโหลด ---
+  // --- Render: Loading ---
   if (questions.length === 0) {
     return <div className="app-container" style={{textAlign: 'center'}}>กำลังโหลด...</div>;
   }
 
-  // --- Render: หน้าสรุปผล ---
+  // --- Render: Result ---
   if (showResult) {
     return (
       <div className="app-container">
@@ -95,7 +105,7 @@ function VocabGame() {
     );
   }
 
-  // --- Render: หน้าเล่นเกม (UI ใหม่) ---
+  // --- Render: Game UI ---
   const currentQ = questions[currentIndex];
 
   return (
@@ -104,10 +114,9 @@ function VocabGame() {
         <h1>Vocabulary Mastery <span className="jp-font">語彙</span></h1>
       </header>
 
-      {/* ✅ ใช้ game-card เหมือนเกมอื่นๆ */}
       <div className="game-card">
         
-        {/* ✅ Progress Bar */}
+        {/* Progress Bar */}
         <div className="progress-bar">
           <div 
             className="fill" 
@@ -115,22 +124,21 @@ function VocabGame() {
           ></div>
         </div>
 
-        {/* ✅ ส่วนแสดงโจทย์ (ใช้ class ใหม่ .vocab-question) */}
+        {/* Question */}
         <div className="vocab-question">
           <span className="jp">{currentQ.japanese}</span>
           <span className="romaji">({currentQ.romaji})</span>
         </div>
 
-        {/* ✅ Grid ปุ่มคำตอบ */}
+        {/* Options Grid */}
         <div className="options-grid">
           {currentQ.options.map((option, index) => {
-            // กำหนด class สำหรับแสดงสี ถูก/ผิด
             let btnClass = "option-btn";
             if (isAnswered) {
               if (option.meaning === currentQ.meaning) {
-                btnClass += " correct"; // ปุ่มที่ถูก (สีเขียว)
+                btnClass += " correct";
               } else if (option.meaning === selectedAnswer) {
-                btnClass += " wrong"; // ปุ่มที่เลือกผิด (สีแดง)
+                btnClass += " wrong";
               }
             }
 
@@ -140,7 +148,7 @@ function VocabGame() {
                 className={btnClass}
                 onClick={() => handleAnswerClick(option.meaning)}
                 disabled={isAnswered}
-                style={{ fontSize: '1.2rem' }} // ปรับขนาดฟอนต์ให้เหมาะกับภาษาอังกฤษ
+                style={{ fontSize: '1.2rem' }}
               >
                 {option.meaning}
               </button>
@@ -148,7 +156,7 @@ function VocabGame() {
           })}
         </div>
 
-        {/* ✅ Footer แสดงคะแนนและปุ่มออก */}
+        {/* Footer */}
         <div className="game-footer">
           <span>Score: {score}</span>
           <Link to="/" className="text-btn">Quit</Link>

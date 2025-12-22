@@ -1,165 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import katakanaData from '../data/katakana';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { katakanaData } from '../data/katakana'; // ตรวจสอบว่าในไฟล์ data มีการ export const katakanaData
+import Game from './Game';
+import Dashboard from '../components/Dashboard';
+import { saveScoreToFirebase } from '../services/scoreService'; // ✅ Import ระบบเซฟคะแนน
 import '../App.css';
 
-function KatakanaGame() {
-  const [gameState, setGameState] = useState('dashboard'); // 'dashboard', 'playing', 'finished'
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [options, setOptions] = useState([]);
-  const [score, setScore] = useState(0);
-  const [questionCount, setQuestionCount] = useState(0);
-  const totalQuestions = 10; // เล่นรอบละ 10 ข้อ
-  
-  // โหลดสถิติจากเครื่อง
-  const [stats, setStats] = useState(() => {
-    const saved = localStorage.getItem('katakanaStats');
-    return saved ? JSON.parse(saved) : { history: [], wrongChars: {} };
+function KatakanaGame({ username }) {
+  const [view, setView] = useState('dashboard'); // dashboard, game
+  const [userStats, setUserStats] = useState({
+    totalAttempts: 0,
+    totalCorrect: 0,
+    history: [], 
+    charStats: {} 
   });
 
-  const generateQuestion = () => {
-    const randomIndex = Math.floor(Math.random() * katakanaData.length);
-    const correct = katakanaData[randomIndex];
-    let answers = [correct];
-    while (answers.length < 4) {
-      const random = katakanaData[Math.floor(Math.random() * katakanaData.length)];
-      if (!answers.find(a => a.character === random.character)) answers.push(random);
+  // กรองเอาเฉพาะตัวที่มีข้อมูล (ป้องกันตัวว่างถ้ามี)
+  const activeGameData = katakanaData ? katakanaData.filter(item => item.character && item.character !== '') : [];
+
+  // 1. โหลดสถิติจากเครื่อง (Local Storage)
+  useEffect(() => {
+    const savedData = localStorage.getItem('katakanaUserStats');
+    if (savedData) {
+      setUserStats(JSON.parse(savedData));
     }
-    answers.sort(() => Math.random() - 0.5);
-    setCurrentQuestion(correct);
-    setOptions(answers);
-  };
+  }, []);
 
-  const startGame = () => {
-    setScore(0);
-    setQuestionCount(0);
-    setGameState('playing');
-    generateQuestion();
-  };
+  // 2. บันทึกสถิติลงเครื่องเมื่อมีการเปลี่ยนแปลง
+  useEffect(() => {
+    localStorage.setItem('katakanaUserStats', JSON.stringify(userStats));
+  }, [userStats]);
 
-  const handleAnswer = (selectedRomaji) => {
-    const isCorrect = selectedRomaji === currentQuestion.romaji;
-    if (isCorrect) setScore(score + 1);
+  // 3. ฟังก์ชันจบเกม
+  const handleGameEnd = (sessionData) => {
+    // --- Update Local Stats ---
+    const newHistory = [...userStats.history, {
+      date: new Date().toLocaleDateString(),
+      score: sessionData.score,
+      total: sessionData.total,
+      accuracy: Math.round((sessionData.score / sessionData.total) * 100)
+    }];
 
-    // บันทึกตัวที่ผิด
-    if (!isCorrect) {
-      const newWrongChars = { ...stats.wrongChars };
-      newWrongChars[currentQuestion.romaji] = (newWrongChars[currentQuestion.romaji] || 0) + 1;
-      setStats(prev => ({ ...prev, wrongChars: newWrongChars }));
+    const newCharStats = { ...userStats.charStats };
+    sessionData.details.forEach(item => {
+      if (item.romaji) {
+          if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
+          newCharStats[item.romaji].attempts += 1;
+          if (item.isCorrect) newCharStats[item.romaji].correct += 1;
+      }
+    });
+
+    // --- ✅ Save to Firebase (Global Ranking) ---
+    if (username) {
+      saveScoreToFirebase(username, sessionData.score);
     }
 
-    const nextCount = questionCount + 1;
-    setQuestionCount(nextCount);
+    // --- Update State ---
+    setUserStats({
+      totalAttempts: userStats.totalAttempts + sessionData.total,
+      totalCorrect: userStats.totalCorrect + sessionData.score,
+      history: newHistory,
+      charStats: newCharStats
+    });
 
-    if (nextCount < totalQuestions) {
-      generateQuestion();
-    } else {
-      finishGame(score + (isCorrect ? 1 : 0));
-    }
+    setView('dashboard');
   };
 
-  const finishGame = (finalScore) => {
-    const accuracy = Math.round((finalScore / totalQuestions) * 100);
-    const newHistory = [...stats.history, { date: new Date().toLocaleTimeString(), accuracy }];
-    
-    // เก็บสถิติล่าสุดแค่ 10 ครั้ง
-    if (newHistory.length > 10) newHistory.shift();
-
-    const newStats = { ...stats, history: newHistory };
-    setStats(newStats);
-    localStorage.setItem('katakanaStats', JSON.stringify(newStats));
-    setGameState('dashboard');
-  };
-
-  // เตรียมข้อมูลกราฟแท่ง (5 ตัวที่ผิดบ่อยสุด)
-  const weakSpotsData = Object.keys(stats.wrongChars)
-    .map(key => ({ name: key, count: stats.wrongChars[key] }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
-
-  const globalAccuracy = stats.history.length > 0 
-    ? Math.round(stats.history.reduce((a, b) => a + b.accuracy, 0) / stats.history.length) 
-    : 0;
-
-  // --- ส่วนแสดงผล Dashboard ---
-  if (gameState === 'dashboard') {
-    return (
-      <div className="App">
-        <header className="App-header" style={{background: '#f4f7f6', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-          <div style={{position: 'absolute', top: 20, left: 20}}>
-             <Link to="/" style={{color: '#4a90e2', textDecoration: 'none', fontWeight:'bold'}}>⬅ Back</Link>
-          </div>
-
-          <div className="dashboard-container">
-            <h1 className="dashboard-title">Katakana Mastery <span style={{color:'#4a90e2'}}>カタカナ</span></h1>
-            
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-label">Total Quizzes</div>
-                <div className="stat-value">{stats.history.length}</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-label">Global Accuracy</div>
-                <div className="stat-value">{globalAccuracy}%</div>
-              </div>
-            </div>
-
-            <button className="start-btn" onClick={startGame}>Start New Quiz</button>
-
-            <br/><br/>
-
-            <div className="chart-section">
-              <div className="chart-title">Progress History</div>
-              <div style={{ width: '100%', height: 200 }}>
-                <ResponsiveContainer>
-                  <LineChart data={stats.history}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="date" hide />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="accuracy" stroke="#8884d8" strokeWidth={2} dot={{r:4}} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {weakSpotsData.length > 0 && (
-              <div className="chart-section">
-                <div className="chart-title">Focus Areas (Mistakes)</div>
-                <div style={{ width: '100%', height: 200 }}>
-                  <ResponsiveContainer>
-                    <BarChart layout="vertical" data={weakSpotsData}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" allowDecimals={false} />
-                      <YAxis dataKey="name" type="category" width={40} />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#ff7675" radius={[0, 4, 4, 0]} barSize={20} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
-      </div>
-    );
-  }
-
-  // --- ส่วนแสดงผลตอนเล่นเกม (Quiz) ---
   return (
-    <div className="App">
-      <header className="App-header">
-        <div style={{marginBottom: '20px'}}>ข้อที่ {questionCount + 1} / {totalQuestions}</div>
-        <div className="character-display">{currentQuestion?.character}</div>
-        <div className="options-grid">
-          {options.map((opt, i) => (
-            <button key={i} className="option-button" onClick={() => handleAnswer(opt.romaji)}>
-              {opt.romaji}
-            </button>
-          ))}
-        </div>
+    <div className="app-container">
+      <header>
+        <h1>Katakana Mastery <span className="jp-font">カタカナ</span></h1>
       </header>
+      
+      <main>
+        {view === 'dashboard' && (
+          <Dashboard stats={userStats} onStart={() => setView('game')} />
+        )}
+        {view === 'game' && (
+          <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
+        )}
+      </main>
     </div>
   );
 }
