@@ -9,9 +9,13 @@ function HiraganaGame() {
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
     totalCorrect: 0,
-    history: [], // Stores past game sessions
-    charStats: {} // Stores per-character accuracy { 'a': { correct: 5, attempts: 6 } }
+    history: [], 
+    charStats: {} 
   });
+
+  // ✅ เพิ่มบรรทัดนี้: กรองเอาเฉพาะข้อมูลที่มีตัวอักษร (ตัดช่องว่างทิ้ง)
+  // เพื่อไม่ให้ Game สุ่มเจอโจทย์ว่างๆ
+  const activeGameData = hiraganaData.filter(item => item.character && item.character !== '');
 
   // Load data from LocalStorage on mount
   useEffect(() => {
@@ -38,9 +42,12 @@ function HiraganaGame() {
     // 2. Update Character Stats
     const newCharStats = { ...userStats.charStats };
     sessionData.details.forEach(item => {
-      if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
-      newCharStats[item.romaji].attempts += 1;
-      if (item.isCorrect) newCharStats[item.romaji].correct += 1;
+      // ป้องกัน error กรณี romaji ไม่มีค่า
+      if (item.romaji) {
+          if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
+          newCharStats[item.romaji].attempts += 1;
+          if (item.isCorrect) newCharStats[item.romaji].correct += 1;
+      }
     });
 
     setUserStats({
@@ -64,7 +71,8 @@ function HiraganaGame() {
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
         {view === 'game' && (
-          <Game dataset={hiraganaData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
+          /* ✅ แก้ตรงนี้: ส่ง activeGameData (ที่กรองแล้ว) แทน hiraganaData ตัวเดิม */
+          <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
         )}
       </main>
     </div>
