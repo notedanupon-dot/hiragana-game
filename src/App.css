@@ -1,6 +1,6 @@
 :root {
   --primary: #4a90e2;
-  --bg: #04e2ff;
+  --bg: #f5f7fa;
   --card-bg: #ffffff;
   --text: #2c3e50;
   --success: #4cd964;
@@ -58,7 +58,7 @@ header {
   width: 100%;
   padding: 18px;
   background: var(--primary);
-  color: rgb(0, 255, 255);
+  color: white;
   border: none;
   border-radius: var(--radius);
   font-size: 1.2rem;

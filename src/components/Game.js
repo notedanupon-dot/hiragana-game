@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { hiragana } from '../data/hiragana';
-import { katakana } from '../data/katakana';
-import { vocab } from '../data/vocab';
+
 const QUESTION_LIMIT = 10;
 
 const Game = ({ dataset, onEnd, onCancel }) => {
