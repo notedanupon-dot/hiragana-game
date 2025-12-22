@@ -1,155 +1,329 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Mochiy+Pop+One&display=swap');
-
 :root {
-  --bg-color: #f0f2f5;
+  --primary: #4a90e2;
+  --bg: #f5f7fa;
   --card-bg: #ffffff;
-  --text-primary: #333;
-  --text-secondary: #666;
-  --hiragana-color: #48c774; /* Green */
-  --katakana-color: #3298dc; /* Blue */
-  --vocab-color: #ffdd57;    /* Yellow/Orange */
-  --vocab-text: #856404;
-  --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-* {
-  box-sizing: border-box;
+  --text: #2c3e50;
+  --success: #4cd964;
+  --error: #ff3b30;
+  --radius: 12px;
 }
 
 body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
   margin: 0;
-  font-family: 'Kanit', sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-}
-
-.App {
+  display: flex;
+  justify-content: center;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px;
 }
 
-/* Header Section */
-.hero-section {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.main-title {
-  font-family: 'Mochiy Pop One', sans-serif;
-  font-size: 3rem;
-  color: #2c3e50;
-  margin: 0;
-  letter-spacing: -1px;
-}
-
-.main-title span {
-  color: #ff4757; /* Japan Red */
-}
-
-.sub-title {
-  font-size: 1.2rem;
-  color: var(--text-secondary);
-  margin-top: 10px;
-}
-
-/* Grid Layout */
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+.app-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 480px; /* Mobile app feel */
+  padding: 20px;
+  background: var(--bg);
 }
 
-/* Card Styles */
-.menu-card {
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.jp-font {
+  color: var(--primary);
+  font-family: 'Noto Sans JP', sans-serif; /* Ensure you import this via Google Fonts */
+}
+
+/* Dashboard Styles */
+.stats-overview {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  flex: 1;
   background: var(--card-bg);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 15px;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.stat-card h3 { font-size: 0.8rem; opacity: 0.7; margin: 0; }
+.stat-card p { font-size: 1.5rem; font-weight: bold; margin: 5px 0 0; }
+
+.start-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s;
+  margin-bottom: 30px;
+}
+
+.start-btn:active { transform: scale(0.98); }
+
+.charts-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 20px;
+}
+
+.chart-wrapper {
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: var(--radius);
+}
+
+.no-data { text-align: center; opacity: 0.5; font-style: italic; }
+
+/* Game Styles */
+.game-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   text-align: center;
-  position: relative;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  margin-bottom: 30px;
   overflow: hidden;
 }
 
-.menu-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+.progress-bar .fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s ease;
 }
 
-.card-icon {
-  font-size: 4rem;
-  margin-bottom: 15px;
+.hiragana-char {
+  font-size: 6rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+  font-family: 'Noto Sans JP', sans-serif;
 }
 
-.card-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 10px;
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.option-btn {
+  padding: 20px;
+  font-size: 1.2rem;
+  background: #f0f4f8;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-btn:hover:not(:disabled) { border-color: var(--primary); }
+
+.option-btn.correct {
+  background-color: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+.option-btn.wrong {
+  background-color: var(--error);
+  color: white;
+  border-color: var(--error);
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #888;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #888;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- Dashboard Styles --- */
+.dashboard-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
   color: #2c3e50;
 }
 
-.card-desc {
+.stat-label {
+  font-size: 0.9rem;
   color: #7f8c8d;
-  margin-bottom: 25px;
-  font-size: 0.95rem;
+  margin-bottom: 5px;
 }
 
-/* Button Styles */
-.action-btn {
-  display: inline-block;
-  width: 100%;
-  padding: 15px 0;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: filter 0.2s;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.action-btn:hover {
-  filter: brightness(1.1);
-}
-
-.btn-hira { background-color: var(--hiragana-color); }
-.btn-kata { background-color: var(--katakana-color); }
-.btn-vocab { 
-  background-color: var(--vocab-color); 
-  color: var(--vocab-text);
-}
-.btn-outline {
-  background-color: transparent;
-  border: 2px solid #ddd;
-  color: #555;
-  margin-top: 10px;
-  box-shadow: none;
-}
-.btn-outline:hover {
-  background-color: #f8f9fa;
-  border-color: #bbb;
-}
-
-/* Section Divider */
-.section-label {
-  width: 100%;
-  max-width: 1000px;
-  margin-top: 40px;
+.chart-section {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   margin-bottom: 20px;
+}
+
+.chart-title {
+  text-align: left;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.start-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #4a90e2;
+  color: white;
   font-size: 1.2rem;
-  font-weight: 600;
-  color: #aaa;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.start-btn:hover {
+  background-color: #357abd;
+  transform: translateY(-2px);
+}
+
+/* --- Styles สำหรับตารางตัวอักษร --- */
+.chart-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.chart-item {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.chart-item:hover {
+  transform: scale(1.1);
+  border-color: #4a90e2;
+  background-color: #eaf2ff;
+}
+
+.chart-char {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.chart-romaji {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-top: 5px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 2px solid #eee;
+}
+
+/* จัดหน้าเมนูให้สวยงาม */
+.menu-grid {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  min-width: 250px;
+}
+
+.menu-section h3 {
+  color: white;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(255,255,255,0.3);
   padding-bottom: 10px;
+}
+
+/* ปุ่มรอง (Secondary Button) สำหรับตาราง */
+.menu-button.secondary {
+  background-color: #2ecc71; /* สีเขียว */
+}
+
+.menu-button.secondary:hover {
+  background-color: #27ae60;
+}
+
+/* ซ่อนกล่องที่ไม่มีข้อมูล (ช่องว่างจัดระเบียบ) */
+.chart-item.empty {
+  visibility: hidden; /* ซ่อนไม่ให้เห็น */
+  pointer-events: none; /* คลิ๊กไม่ได้ */
+  border: none; /* ไม่มีขอบ */
+  background: transparent; /* พื้นหลังใส */
 }
