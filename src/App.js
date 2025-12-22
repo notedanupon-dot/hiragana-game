@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 
 // Import Components
 import HiraganaGame from './components/HiraganaGame';
-import KatakanaGame from './components/KatakanaGame';
-import VocabGame from './components/VocabGame';
-import HiraganaChart from './components/HiraganaChart';
-import KatakanaChart from './components/KatakanaChart';
-import Dashboard from './components/Dashboard'; // ✅ เราจะใช้ Dashboard ตัวใหม่ที่เพิ่งแก้
-import Login from './components/Login';         // ✅ Import หน้า Login
+// import KatakanaGame from './components/KatakanaGame'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+// import VocabGame from './components/VocabGame';       // (เปิดใช้เมื่อมีไฟล์แล้ว)
+// import HiraganaChart from './components/HiraganaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+// import KatakanaChart from './components/KatakanaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
 
+import Login from './components/Login';
+
+// หน้าแรก (เมนูหลัก)
 function Home() {
   return (
     <div className="dashboard-container">
@@ -19,9 +20,7 @@ function Home() {
         <p>เลือกบทเรียนเพื่อเริ่มเก็บคะแนน!</p>
       </header>
       
-      {/* (ใส่โค้ดเมนู button-list เดิมของคุณตรงนี้...) */}
-      {/* เพื่อความกระชับ ผมขอละไว้ แต่คุณใช้โค้ดเดิมส่วนเมนูได้เลยครับ */}
-       <div className="menu-section">
+      <div className="menu-section">
         <h3>🎮 แบบฝึกหัด (Games)</h3>
         <div className="button-list">
           <Link to="/hiragana-game" className="menu-item">ฝึกฮิรางานะ (Hiragana)</Link>
@@ -37,22 +36,17 @@ function Home() {
           <Link to="/chart-katakana" className="menu-item secondary">ตารางคาตาคานะ</Link>
         </div>
       </div>
-
     </div>
   );
 }
 
 function App() {
   const [username, setUsername] = useState(null);
-  const [userStats, setUserStats] = useState({ totalCorrect: 0, totalAttempts: 0 });
 
-  // 1. โหลดชื่อและสถิติจากเครื่องเมื่อเปิดแอป
+  // 1. เช็ค Login เมื่อเปิดแอป
   useEffect(() => {
     const savedName = localStorage.getItem('username');
-    const savedStats = localStorage.getItem('globalStats'); // เราจะรวมสถิติไว้ที่เดียวเพื่อความง่าย
-    
     if (savedName) setUsername(savedName);
-    if (savedStats) setUserStats(JSON.parse(savedStats));
   }, []);
 
   // 2. ฟังก์ชัน Login
@@ -61,26 +55,52 @@ function App() {
     setUsername(name);
   };
 
-  // 3. ถ้ายังไม่ Login ให้แสดงหน้า Login เท่านั้น
+  // 3. ฟังก์ชัน Logout (แถมให้: เพื่อความสะดวกในการทดสอบ)
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    setUsername(null);
+  };
+
+  // ถ้ายังไม่ Login ให้โชว์หน้า Login
   if (!username) {
     return <Login onLogin={handleLogin} />;
   }
 
-  // 4. ถ้า Login แล้ว ให้เข้าแอปปกติ
+  // ถ้า Login แล้ว ให้เข้าสู่ระบบ Routing
   return (
     <Router>
       <div className="app-container">
-        {/* แสดง Dashboard ส่วนตัวด้านบนทุกหน้า */}
-        <Dashboard stats={userStats} /> 
+        
+        {/* Navbar เล็กๆ ด้านบน เพื่อบอกว่าใคร Login อยู่ และปุ่มกลับหน้าแรก */}
+        <nav style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          padding: '10px 20px', 
+          background: '#f0f2f5',
+          marginBottom: '20px'
+        }}>
+          <div>
+            <Link to="/" style={{ textDecoration: 'none', fontWeight: 'bold', color: '#333' }}>🏠 หน้าหลัก</Link>
+          </div>
+          <div>
+            👤 {username} | <button onClick={handleLogout} style={{cursor: 'pointer', border:'none', background:'none', color:'red'}}>ออก</button>
+          </div>
+        </nav>
 
+        {/* ส่วนแสดงผลเปลี่ยนไปตาม Route */}
         <Routes>
           <Route path="/" element={<Home />} />
+          
+          {/* ส่ง username เข้าไปในเกมด้วย เพื่อใช้บันทึก Firebase */}
           <Route path="/hiragana-game" element={<HiraganaGame username={username} />} />
-          <Route path="/katakana-game" element={<KatakanaGame username={username} />} />
-          <Route path="/vocabulary-game" element={<VocabGame username={username} />} />
-          <Route path="/chart-hiragana" element={<HiraganaChart />} />
-          <Route path="/chart-katakana" element={<KatakanaChart />} />
+          
+          {/* (ใส่ Comment ไว้ก่อนกัน Error จนกว่าจะสร้างไฟล์เสร็จ) */}
+          {/* <Route path="/katakana-game" element={<KatakanaGame username={username} />} /> */}
+          {/* <Route path="/vocabulary-game" element={<VocabGame username={username} />} /> */}
+          {/* <Route path="/chart-hiragana" element={<HiraganaChart />} /> */}
+          {/* <Route path="/chart-katakana" element={<KatakanaChart />} /> */}
         </Routes>
+
       </div>
     </Router>
   );
