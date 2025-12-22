@@ -1,68 +1,66 @@
 // src/data/vocab.js
 
-// ✅ สังเกตคำว่า "export const" ด้านหน้า นี่คือจุดสำคัญที่ทำให้ error หายไปครับ
 export const vocabData = [
-  {
-    japanese: 'おはよう',
-    romaji: 'ohayou',
-    meaning: 'Good Morning'
-  },
-  {
-    japanese: 'こんにちは',
-    romaji: 'konnichiwa',
-    meaning: 'Hello'
-  },
-  {
-    japanese: 'さようなら',
-    romaji: 'sayounara',
-    meaning: 'Goodbye'
-  },
-  {
-    japanese: 'ありがとう',
-    romaji: 'arigatou',
-    meaning: 'Thank you'
-  },
-  {
-    japanese: 'すみません',
-    romaji: 'sumimasen',
-    meaning: 'Excuse me / Sorry'
-  },
-  {
-    japanese: 'はい',
-    romaji: 'hai',
-    meaning: 'Yes'
-  },
-  {
-    japanese: 'いいえ',
-    romaji: 'iie',
-    meaning: 'No'
-  },
-  {
-    japanese: 'ねこ',
-    romaji: 'neko',
-    meaning: 'Cat'
-  },
-  {
-    japanese: 'いぬ',
-    romaji: 'inu',
-    meaning: 'Dog'
-  },
-  {
-    japanese: 'みず',
-    romaji: 'mizu',
-    meaning: 'Water'
-  },
-  {
-    japanese: 'ごはん',
-    romaji: 'gohan',
-    meaning: 'Rice / Meal'
-  },
-  {
-    japanese: 'ほん',
-    romaji: 'hon',
-    meaning: 'Book'
-  }
+  // --- บทที่ 1: การแนะนำตัว, อาชีพ, สัญชาติ ---
+  { japanese: 'わたし', romaji: 'watashi', meaning: 'I / Me' },
+  { japanese: 'がくせい', romaji: 'gakusei', meaning: 'Student' },
+  { japanese: 'せんせい', romaji: 'sensei', meaning: 'Teacher' },
+  { japanese: 'かいしゃいん', romaji: 'kaishain', meaning: 'Company Employee' },
+  { japanese: 'しゃいん', romaji: 'shain', meaning: 'Employee of ~' },
+  { japanese: 'ぎんこういん', romaji: 'ginkouin', meaning: 'Bank Employee' },
+  { japanese: 'いしゃ', romaji: 'isha', meaning: 'Doctor' },
+  { japanese: 'けんきゅうしゃ', romaji: 'kenkyuusha', meaning: 'Researcher' },
+  { japanese: 'エンジニア', romaji: 'enjinia', meaning: 'Engineer' },
+  { japanese: 'だいがく', romaji: 'daigaku', meaning: 'University' },
+  { japanese: 'びょういん', romaji: 'byouin', meaning: 'Hospital' },
+  { japanese: 'だれ', romaji: 'dare', meaning: 'Who' },
+  { japanese: 'さい', romaji: 'sai', meaning: '...years old' },
+
+  // --- บทที่ 2: สิ่งของใกล้ตัว ---
+  { japanese: 'ほん', romaji: 'hon', meaning: 'Book' },
+  { japanese: 'じしょ', romaji: 'jisho', meaning: 'Dictionary' },
+  { japanese: 'ざっし', romaji: 'zasshi', meaning: 'Magazine' },
+  { japanese: 'しんぶん', romaji: 'shinbun', meaning: 'Newspaper' },
+  { japanese: 'ノート', romaji: 'nooto', meaning: 'Notebook' },
+  { japanese: 'てちょう', romaji: 'techou', meaning: 'Pocket Notebook' },
+  { japanese: 'めいし', romaji: 'meishi', meaning: 'Business Card' },
+  { japanese: 'カード', romaji: 'kaado', meaning: 'Card' },
+  { japanese: 'えんぴつ', romaji: 'enpitsu', meaning: 'Pencil' },
+  { japanese: 'ボールペン', romaji: 'boorupen', meaning: 'Ballpoint Pen' },
+  { japanese: 'かぎ', romaji: 'kagi', meaning: 'Key' },
+  { japanese: 'とけい', romaji: 'tokei', meaning: 'Watch / Clock' },
+  { japanese: 'かさ', romaji: 'kasa', meaning: 'Umbrella' },
+  { japanese: 'かばん', romaji: 'kaban', meaning: 'Bag' },
+  { japanese: 'くるま', romaji: 'kuruma', meaning: 'Car' },
+  { japanese: 'つくえ', romaji: 'tsukue', meaning: 'Desk' },
+  { japanese: 'いす', romaji: 'isu', meaning: 'Chair' },
+  { japanese: 'コーヒー', romaji: 'koohii', meaning: 'Coffee' },
+  { japanese: 'おみやげ', romaji: 'omiyage', meaning: 'Souvenir' },
+
+  // --- บทที่ 3: สถานที่, ทิศทาง, ราคา ---
+  { japanese: 'きょうしつ', romaji: 'kyoushitsu', meaning: 'Classroom' },
+  { japanese: 'しょくどう', romaji: 'shokudou', meaning: 'Canteen / Cafeteria' },
+  { japanese: 'じむしょ', romaji: 'jimusho', meaning: 'Office' },
+  { japanese: 'かいぎしつ', romaji: 'kaigishitsu', meaning: 'Meeting Room' },
+  { japanese: 'うけつけ', romaji: 'uketsuke', meaning: 'Reception Desk' },
+  { japanese: 'ロビー', romaji: 'robii', meaning: 'Lobby' },
+  { japanese: 'へや', romaji: 'heya', meaning: 'Room' },
+  { japanese: 'トイレ', romaji: 'toire', meaning: 'Toilet / Restroom' },
+  { japanese: 'かいだん', romaji: 'kaidan', meaning: 'Staircase' },
+  { japanese: 'エレベーター', romaji: 'erebeetaa', meaning: 'Elevator' },
+  { japanese: 'エスカレーター', romaji: 'esukareetaa', meaning: 'Escalator' },
+  { japanese: 'くに', romaji: 'kuni', meaning: 'Country' },
+  { japanese: 'かいしゃ', romaji: 'kaisha', meaning: 'Company' },
+  { japanese: 'うち', romaji: 'uchi', meaning: 'House / Home' },
+  { japanese: 'でんわ', romaji: 'denwa', meaning: 'Telephone' },
+  { japanese: 'くつ', romaji: 'kutsu', meaning: 'Shoes' },
+  { japanese: 'ネクタイ', romaji: 'nekutai', meaning: 'Necktie' },
+  { japanese: 'ワイン', romaji: 'wain', meaning: 'Wine' },
+  { japanese: 'たばこ', romaji: 'tabako', meaning: 'Tobacco / Cigarette' },
+  { japanese: 'うりば', romaji: 'uriba', meaning: 'Department / Counter' },
+  { japanese: 'ちか', romaji: 'chika', meaning: 'Basement' },
+  { japanese: 'えき', romaji: 'eki', meaning: 'Station' },
+  { japanese: 'えん', romaji: 'en', meaning: 'Yen' },
 ];
 
-// แถม export default ไว้กันเหนียว
 export default vocabData;
