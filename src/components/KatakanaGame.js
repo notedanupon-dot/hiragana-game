@@ -1,38 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { katakanaData } from '../data/katakana'; // ตรวจสอบว่าในไฟล์ data มีการ export const katakanaData
+import { katakanaData } from '../data/katakana'; // ดึงข้อมูลคาตาคานะ
 import Game from './Game';
 import Dashboard from '../components/Dashboard';
-import { saveScoreToFirebase } from '../services/scoreService'; // ✅ Import ระบบเซฟคะแนน
+import { saveScoreToFirebase } from '../services/scoreService';
 import '../App.css';
 
 function KatakanaGame({ username }) {
-  const [view, setView] = useState('dashboard'); // dashboard, game
+  const [view, setView] = useState('dashboard');
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
     totalCorrect: 0,
-    history: [], 
+    history: [],
     charStats: {} 
   });
 
-  // กรองเอาเฉพาะตัวที่มีข้อมูล (ป้องกันตัวว่างถ้ามี)
-  const activeGameData = katakanaData ? katakanaData.filter(item => item.character && item.character !== '') : [];
+  // ✅ กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร (ตัดช่องว่างในตารางออก)
+  const activeGameData = katakanaData.filter(item => item.character !== '');
 
-  // 1. โหลดสถิติจากเครื่อง (Local Storage)
+  // โหลดสถิติ
   useEffect(() => {
     const savedData = localStorage.getItem('katakanaUserStats');
-    if (savedData) {
-      setUserStats(JSON.parse(savedData));
-    }
+    if (savedData) setUserStats(JSON.parse(savedData));
   }, []);
 
-  // 2. บันทึกสถิติลงเครื่องเมื่อมีการเปลี่ยนแปลง
+  // บันทึกสถิติ
   useEffect(() => {
     localStorage.setItem('katakanaUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
-  // 3. ฟังก์ชันจบเกม
   const handleGameEnd = (sessionData) => {
-    // --- Update Local Stats ---
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -40,26 +36,15 @@ function KatakanaGame({ username }) {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    const newCharStats = { ...userStats.charStats };
-    sessionData.details.forEach(item => {
-      if (item.romaji) {
-          if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
-          newCharStats[item.romaji].attempts += 1;
-          if (item.isCorrect) newCharStats[item.romaji].correct += 1;
-      }
-    });
-
-    // --- ✅ Save to Firebase (Global Ranking) ---
     if (username) {
       saveScoreToFirebase(username, sessionData.score);
     }
 
-    // --- Update State ---
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
       history: newHistory,
-      charStats: newCharStats
+      charStats: userStats.charStats
     });
 
     setView('dashboard');
@@ -75,8 +60,13 @@ function KatakanaGame({ username }) {
         {view === 'dashboard' && (
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
+        
         {view === 'game' && (
-          <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
+          <Game 
+            dataset={activeGameData} 
+            onEnd={handleGameEnd} 
+            onCancel={() => setView('dashboard')} 
+          />
         )}
       </main>
     </div>
