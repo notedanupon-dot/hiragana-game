@@ -436,3 +436,69 @@ header h1 {
   color: var(--text-light);
   margin-top: 10px;
 }
+
+/* --- Styles สำหรับตารางตัวอักษร (Chart) --- */
+
+.chart-container {
+  padding: 20px;
+  max-width: 600px; /* จำกัดความกว้างไม่ให้ตารางยืดเกินไป */
+  margin: 0 auto;   /* จัดกึ่งกลางหน้าจอ */
+}
+
+.character-grid {
+  display: grid;
+  /* แบ่งเป็น 5 คอลัมน์ (a, i, u, e, o) */
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 12px; /* ระยะห่างระหว่างช่อง */
+  padding-bottom: 40px;
+}
+
+.char-card {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 0;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border: 2px solid #eee;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: default;
+}
+
+.char-card:hover {
+  transform: translateY(-3px);
+  border-color: #4facfe;
+  box-shadow: 0 5px 10px rgba(79, 172, 254, 0.3);
+}
+
+/* ตัวอักษรญี่ปุ่น */
+.char-jp {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.2;
+}
+
+/* ตัวโรมาจิ (ภาษาอังกฤษ) */
+.char-ro {
+  font-size: 0.9rem;
+  color: #888;
+  font-weight: 500;
+}
+
+/* ช่องว่าง (สำหรับวรรคที่ไม่มีตัวอักษร เช่น yi, ye) */
+.char-card.empty {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  pointer-events: none; /* คลิกไม่ได้ */
+}
+
+/* ปรับให้เล็กลงเมื่อดูในมือถือ */
+@media (max-width: 480px) {
+  .character-grid {
+    gap: 8px;
+  }
+  .char-jp {
+    font-size: 1.4rem;
+  }
+}
