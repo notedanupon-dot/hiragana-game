@@ -12,32 +12,31 @@ import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
 
 // หน้าแรก (เมนูหลัก)
-// --- ส่วนของหน้า Home (หน้าหลัก) ---
 function Home() {
   return (
-    <div className="app-container">
+    
+    <div className="dashboard-container">
       {/* 1. วาง Leaderboard ไว้บนสุด ตรงนี้เลยครับ */}
       <Leaderboard />
-
-      {/* 2. ชื่อเกมและคำโปรย (อยู่ใต้ Leaderboard) */}
-      <header className="home-header" style={{ marginTop: '20px' }}>
-        <h1>Japanese Master <span className="jp-font">JP</span></h1>
+      <header>
+        <h1>Japanese Master 🇯🇵</h1>
         <p>เลือกบทเรียนเพื่อเริ่มเก็บคะแนน!</p>
       </header>
-
-      {/* 3. ปุ่มเลือกเกม (Games) */}
+      
       <div className="menu-section">
         <h3>🎮 แบบฝึกหัด (Games)</h3>
-        <Link to="/hiragana-game" className="menu-btn">ฝึกฮิรางานะ (Hiragana)</Link>
-        <Link to="/katakana-game" className="menu-btn">ฝึกคาตาคานะ (Katakana)</Link>
-        <Link to="/vocabulary-game" className="menu-btn">ทายคำศัพท์ (Vocabulary)</Link>
+        <div className="button-list">
+          <Link to="/hiragana-game" className="menu-item">ฝึกฮิรางานะ (Hiragana)</Link>
+          <Link to="/katakana-game" className="menu-item">ฝึกคาตาคานะ (Katakana)</Link>
+          <Link to="/vocabulary-game" className="menu-item">ทายคำศัพท์ (Vocabulary)</Link>
+        </div>
       </div>
-
-      {/* 4. ปุ่มดูตาราง (Charts) */}
       <div className="menu-section">
         <h3>📖 ตารางตัวอักษร (Charts)</h3>
-        <Link to="/hiragana-chart" className="menu-btn outline">ตารางฮิรางานะ</Link>
-        <Link to="/katakana-chart" className="menu-btn outline">ตารางคาตาคานะ</Link>
+        <div className="button-list">
+          <Link to="/chart-hiragana" className="menu-item secondary">ตารางฮิรางานะ</Link>
+          <Link to="/chart-katakana" className="menu-item secondary">ตารางคาตาคานะ</Link>
+        </div>
       </div>
     </div>
   );
