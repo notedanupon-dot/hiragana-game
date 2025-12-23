@@ -4,11 +4,11 @@ import './App.css';
 
 // Import Components
 import HiraganaGame from './components/HiraganaGame';
- import KatakanaGame from './components/KatakanaGame'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
- import VocabGame from './components/VocabGame';       // (เปิดใช้เมื่อมีไฟล์แล้ว)
- import HiraganaChart from './components/HiraganaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
- import KatakanaChart from './components/KatakanaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
-
+import KatakanaGame from './components/KatakanaGame'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+import VocabGame from './components/VocabGame';       // (เปิดใช้เมื่อมีไฟล์แล้ว)
+import HiraganaChart from './components/HiraganaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+import KatakanaChart from './components/KatakanaChart'; // (เปิดใช้เมื่อมีไฟล์แล้ว)
+import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
 
 // หน้าแรก (เมนูหลัก)
@@ -28,6 +28,30 @@ function Home() {
           <Link to="/vocabulary-game" className="menu-item">ทายคำศัพท์ (Vocabulary)</Link>
         </div>
       </div>
+
+<div className="app-container">
+    {/* ส่วน Header เดิม */}
+    <header className="home-header">
+       <h1>Japanese Master <span className="jp-font">JP</span></h1>
+       <p>เลือกบทเรียนเพื่อเริ่มเก็บคะแนน!</p>
+    </header>
+
+    <main>
+      {/* ✅ วาง Leaderboard ไว้ตรงนี้เพื่อให้เด่นที่สุด */}
+      <Leaderboard />
+
+      {/* ส่วนปุ่มกดเข้าเกมแบบเดิม */}
+      <div className="menu-section">
+         <h3>🎮 แบบฝึกหัด (Games)</h3>
+         {/* ... ปุ่ม Link เดิม ... */}
+      </div>
+
+      <div className="menu-section">
+         <h3>📖 ตารางตัวอักษร (Charts)</h3>
+         {/* ... ปุ่ม Link เดิม ... */}
+      </div>
+    </main>
+  </div>
 
       <div className="menu-section">
         <h3>📖 ตารางตัวอักษร (Charts)</h3>

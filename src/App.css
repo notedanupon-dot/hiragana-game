@@ -502,3 +502,119 @@ header h1 {
     font-size: 1.4rem;
   }
 }
+
+/* --- Leaderboard Design --- */
+.leaderboard-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 25px;
+  margin: 20px auto 40px; /* เว้นระยะบนล่าง */
+  max-width: 500px;
+  text-align: center;
+  border: 2px solid #f0f0f0;
+}
+
+.leaderboard-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+}
+
+.leaderboard-header p {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Tabs */
+.leaderboard-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+  background: #f8f9fa;
+  padding: 5px;
+  border-radius: 30px;
+}
+
+.leaderboard-tabs button {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #7f8c8d;
+  transition: all 0.3s;
+}
+
+.leaderboard-tabs button.active {
+  background: #4facfe;
+  color: white;
+  box-shadow: 0 2px 5px rgba(79, 172, 254, 0.4);
+}
+
+/* List Items */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  transition: transform 0.2s;
+}
+
+.rank-item:hover {
+  transform: translateX(5px);
+  border-color: #4facfe;
+}
+
+/* Special Styles for Top 3 */
+.rank-1 {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+  border: 2px solid #ffd700; /* Gold */
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+}
+
+.rank-2 {
+  border: 2px solid #c0c0c0; /* Silver */
+}
+
+.rank-3 {
+  border: 2px solid #cd7f32; /* Bronze */
+}
+
+.rank-number {
+  font-size: 1.5rem;
+  width: 40px;
+  text-align: left;
+}
+
+.rank-info {
+  flex-grow: 1;
+  text-align: left;
+  font-weight: bold;
+  color: #333;
+}
+
+.rank-score {
+  font-weight: 800;
+  color: #4facfe;
+  font-size: 1.1rem;
+}
+
+.rank-score small {
+  font-size: 0.7rem;
+  color: #999;
+  font-weight: normal;
+  margin-left: 3px;
+}
