@@ -508,9 +508,12 @@ header h1 {
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  padding: 25px;
-  margin: 20px auto 40px; /* เว้นระยะบนล่าง */
-  max-width: 500px;
+  padding: 20px;
+  
+  /* ✅ แก้ตรงนี้: เว้นระยะด้านบน 30px (ห่างจากแถบเทา) และด้านล่าง 10px */
+  margin: 30px auto 10px; 
+  
+  max-width: 600px; /* ปรับให้กว้างขึ้นอีกนิดถ้าย้ายมาไว้บนสุด */
   text-align: center;
   border: 2px solid #f0f0f0;
 }
@@ -617,4 +620,9 @@ header h1 {
   color: #999;
   font-weight: normal;
   margin-left: 3px;
+}
+
+.home-header {
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
