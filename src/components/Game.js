@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveScoreToFirebase } from '../services/scoreService'; 
 import '../App.css'; 
 import { playAudio } from '../services/audioService'; // ✅ Import มาแล้ว
+import { playCorrect, playWrong } from '../services/sfxService'; // 👈 เพิ่มบรรทัดนี้
 
 const QUESTION_LIMIT = 10;
 const SHOW_AUDIO_BTN = false; // 👈 เปลี่ยนเป็น true ถ้าอยากให้แสดง, false เพื่อซ่อน
@@ -49,6 +50,13 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
 
     const currentQ = questions[currentIndex];
     const isCorrect = romaji === currentQ.romaji;
+
+    // ✅ ส่วนที่เพิ่ม: เช็คว่าถูกหรือผิด แล้วสั่งเล่นเสียง
+    if (isCorrect) {
+        playCorrect(); // 🔊 เสียงปิ๊ง!
+    } else {
+        playWrong();   // 🔊 เสียงตื๊ด...
+    }
     
     setSelectedAnswer(romaji);
     setIsAnswered(true);
