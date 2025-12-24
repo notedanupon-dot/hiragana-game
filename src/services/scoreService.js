@@ -1,44 +1,43 @@
-// src/services/scoreService.js
 import { db } from '../firebase';
-import { doc, setDoc, getDoc, updateDoc, increment, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
-// ฟังก์ชันบันทึกคะแนน (บวกเพิ่มจากของเดิม)
-export const saveScoreToFirebase = async (username, pointsToAdd) => {
-  if (!username) return;
-
-  const userRef = doc(db, "users", username);
-
+// 1. ฟังก์ชันบันทึกคะแนน (Save Score)
+export const saveScoreToFirebase = async (username, score, category) => {
   try {
-    const docSnap = await getDoc(userRef);
-
-    if (docSnap.exists()) {
-      // ถ้ามีชื่อนี้อยู่แล้ว ให้บวกคะแนนเพิ่ม
-      await updateDoc(userRef, {
-        totalScore: increment(pointsToAdd),
-        lastPlayed: new Date()
-      });
-    } else {
-      // ถ้าเป็นผู้เล่นใหม่ ให้สร้างข้อมูลใหม่
-      await setDoc(userRef, {
-        username: username,
-        totalScore: pointsToAdd,
-        lastPlayed: new Date()
-      });
-    }
-  } catch (error) {
-    console.error("Error saving score:", error);
+    await addDoc(collection(db, "scores"), {
+      username: username,
+      score: score,
+      category: category,
+      date: new Date().toISOString()
+    });
+    console.log("Score saved!");
+  } catch (e) {
+    console.error("Error adding document: ", e);
   }
 };
 
-// ฟังก์ชันดึง 3 อันดับแรก
-export const getLeaderboard = async () => {
+// 2. ✅ ฟังก์ชันดึง Leaderboard (ตัวที่ Error หาไม่เจอ)
+export const getLeaderboard = async (category) => {
   try {
-    const q = query(collection(db, "users"), orderBy("totalScore", "desc"), limit(3));
+    // สร้าง Query: เลือก collection 'scores', กรองตาม category, เรียงจากมากไปน้อย, เอาแค่ 10 อันดับ
+    const q = query(
+      collection(db, "scores"),
+      where("category", "==", category),
+      orderBy("score", "desc"),
+      limit(10)
+    );
+
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => doc.data());
+    // แปลงข้อมูลให้อยู่ในรูปแบบ Array
+    const leaderboardData = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return leaderboardData;
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
-    return [];
+    return []; // ถ้า error ให้ส่ง array ว่างกลับไป กันแอปพัง
   }
 };

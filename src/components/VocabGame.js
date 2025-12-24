@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { vocabData } from '../data/vocab'; // โหลดคำศัพท์
+import { vocabData } from '../data/vocab'; // ตรวจสอบ path ให้ถูกต้อง
 import Game from './Game';
-import Dashboard from '../components/Dashboard';
-import { saveScoreToFirebase } from '../services/scoreService';
+import Dashboard from './Dashboard'; // หรือ '../components/Dashboard'
 import '../App.css';
 
 function VocabGame({ username }) {
@@ -11,12 +10,10 @@ function VocabGame({ username }) {
     totalAttempts: 0,
     totalCorrect: 0,
     history: [],
-    charStats: {} // เก็บสถิติรายคำ
+    charStats: {} 
   });
 
   // 🔄 แปลงข้อมูลให้เข้ากับ Game Engine เดิม
-  // เปลี่ยน 'japanese' -> 'character' (คำถาม)
-  // เปลี่ยน 'english' -> 'romaji' (คำตอบ)
   const activeGameData = vocabData.map(item => ({
     character: item.japanese, 
     romaji: item.english,     
@@ -29,13 +26,13 @@ function VocabGame({ username }) {
     if (savedData) setUserStats(JSON.parse(savedData));
   }, []);
 
-  // บันทึกสถิติ
+  // บันทึกสถิติลงเครื่อง
   useEffect(() => {
     localStorage.setItem('vocabUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
   const handleGameEnd = (sessionData) => {
-    // อัปเดต History
+    // 1. อัปเดต History (เฉพาะในเครื่อง Local)
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -43,17 +40,14 @@ function VocabGame({ username }) {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    // บันทึก Firebase
-    if (username) {
-      saveScoreToFirebase(username, sessionData.score);
-    }
-
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
       history: newHistory,
-      charStats: userStats.charStats // (ส่วนนี้ละไว้ก่อนสำหรับ vocab)
+      charStats: userStats.charStats 
     });
+
+    // *หมายเหตุ: การส่งคะแนนไป Firebase ทำใน Game.js แล้ว ไม่ต้องทำตรงนี้ซ้ำ*
 
     setView('dashboard');
   };
@@ -61,7 +55,6 @@ function VocabGame({ username }) {
   return (
     <div className="app-container">
       <header>
-        {/* เปลี่ยนหัวข้อเป็น Vocabulary */}
         <h1>Vocabulary Challenge <span className="jp-font">単語</span></h1>
       </header>
       
@@ -75,6 +68,10 @@ function VocabGame({ username }) {
             dataset={activeGameData} 
             onEnd={handleGameEnd} 
             onCancel={() => setView('dashboard')} 
+            
+            // ✅ จุดสำคัญ: ส่งข้อมูลไปให้ Game.js บันทึกคะแนนลงหมวด vocab
+            username={username || "Guest"} 
+            category="vocab" 
           />
         )}
       </main>

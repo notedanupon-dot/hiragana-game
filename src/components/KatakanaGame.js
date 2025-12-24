@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { katakanaData } from '../data/katakana'; // ดึงข้อมูลคาตาคานะ
+import { katakanaData } from '../data/katakana'; // ตรวจสอบ path ให้ถูกต้อง
 import Game from './Game';
-import Dashboard from '../components/Dashboard';
-import { saveScoreToFirebase } from '../services/scoreService';
+import Dashboard from './Dashboard'; // หรือ '../components/Dashboard' ตามโครงสร้างโฟลเดอร์จริงของคุณ
 import '../App.css';
 
 function KatakanaGame({ username }) {
@@ -14,21 +13,22 @@ function KatakanaGame({ username }) {
     charStats: {} 
   });
 
-  // ✅ กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร (ตัดช่องว่างในตารางออก)
+  // กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร
   const activeGameData = katakanaData.filter(item => item.character !== '');
 
-  // โหลดสถิติ
+  // โหลดสถิติจาก LocalStorage
   useEffect(() => {
     const savedData = localStorage.getItem('katakanaUserStats');
     if (savedData) setUserStats(JSON.parse(savedData));
   }, []);
 
-  // บันทึกสถิติ
+  // บันทึกสถิติลง LocalStorage
   useEffect(() => {
     localStorage.setItem('katakanaUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
   const handleGameEnd = (sessionData) => {
+    // 1. อัปเดตสถิติ Local (ในเครื่อง)
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -36,16 +36,14 @@ function KatakanaGame({ username }) {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    if (username) {
-      saveScoreToFirebase(username, sessionData.score);
-    }
-
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
       history: newHistory,
       charStats: userStats.charStats
     });
+
+    // *หมายเหตุ: การ saveScoreToFirebase ถูกทำในไฟล์ Game.js แล้ว จึงไม่ต้องทำตรงนี้อีก*
 
     setView('dashboard');
   };
@@ -65,7 +63,11 @@ function KatakanaGame({ username }) {
           <Game 
             dataset={activeGameData} 
             onEnd={handleGameEnd} 
-            onCancel={() => setView('dashboard')} 
+            onCancel={() => setView('dashboard')}
+            
+            // ✅ จุดสำคัญ: ส่งข้อมูลไปให้ Game.js เพื่อบันทึกคะแนน
+            username={username || "Guest"} 
+            category="katakana" 
           />
         )}
       </main>

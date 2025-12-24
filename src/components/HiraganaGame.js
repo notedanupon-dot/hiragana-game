@@ -1,38 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { hiraganaData } from '../data/hiragana';
-import Game from './Game';
-import Dashboard from '../components/Dashboard'; // เรียกใช้ไฟล์ที่เราเพิ่งสร้าง
-import { saveScoreToFirebase } from '../services/scoreService';
+import { hiraganaData } from '../data/hiragana'; // หรือ path ที่ถูกต้องของคุณ
+import Game from './Game'; // ✅ เรียกใช้ Game ที่เราเพิ่งแก้
+import Dashboard from './Dashboard';
 import '../App.css';
 
+// ⚠️ สำคัญ: ต้องรับ prop { username } มาจาก App.js
 function HiraganaGame({ username }) {
-  const [view, setView] = useState('dashboard'); // เริ่มต้นที่หน้า Dashboard
+  const [view, setView] = useState('dashboard');
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
     totalCorrect: 0,
-    history: [], 
+    history: [],
     charStats: {} 
   });
 
-  // กรองข้อมูลตัวอักษรให้ถูกต้อง
-  const activeGameData = hiraganaData ? hiraganaData.filter(item => item.character && item.character !== '') : [];
+  const activeGameData = hiraganaData.filter(item => item.character !== '');
 
-  // โหลดสถิติจากเครื่อง
+  // โหลดสถิติจาก LocalStorage
   useEffect(() => {
     const savedData = localStorage.getItem('hiraganaUserStats');
-    if (savedData) {
-      setUserStats(JSON.parse(savedData));
-    }
+    if (savedData) setUserStats(JSON.parse(savedData));
   }, []);
 
-  // บันทึกสถิติลงเครื่อง
+  // บันทึกสถิติลง LocalStorage
   useEffect(() => {
     localStorage.setItem('hiraganaUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
-  // ฟังก์ชันจบเกม
   const handleGameEnd = (sessionData) => {
-    // อัปเดตสถิติ
+    // อัปเดตสถิติในเครื่อง (ส่วน Firebase ทำใน Game.js ไปแล้ว)
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -40,29 +36,13 @@ function HiraganaGame({ username }) {
       accuracy: Math.round((sessionData.score / sessionData.total) * 100)
     }];
 
-    const newCharStats = { ...userStats.charStats };
-    sessionData.details.forEach(item => {
-      if (item.romaji) {
-          if (!newCharStats[item.romaji]) newCharStats[item.romaji] = { correct: 0, attempts: 0 };
-          newCharStats[item.romaji].attempts += 1;
-          if (item.isCorrect) newCharStats[item.romaji].correct += 1;
-      }
-    });
-
-    // ส่งคะแนนไป Firebase
-    if (username) {
-      saveScoreToFirebase(username, sessionData.score);
-    }
-
-    // เซฟลง State
     setUserStats({
       totalAttempts: userStats.totalAttempts + sessionData.total,
       totalCorrect: userStats.totalCorrect + sessionData.score,
       history: newHistory,
-      charStats: newCharStats
+      charStats: userStats.charStats
     });
 
-    // กลับไปหน้า Dashboard
     setView('dashboard');
   };
 
@@ -73,13 +53,20 @@ function HiraganaGame({ username }) {
       </header>
       
       <main>
-        {/* เงื่อนไข: ถ้า view เป็น dashboard ให้โชว์ Dashboard, ถ้าเป็น game ให้โชว์ Game */}
         {view === 'dashboard' && (
           <Dashboard stats={userStats} onStart={() => setView('game')} />
         )}
         
         {view === 'game' && (
-          <Game dataset={activeGameData} onEnd={handleGameEnd} onCancel={() => setView('dashboard')} />
+          <Game 
+            dataset={activeGameData} 
+            onEnd={handleGameEnd} 
+            onCancel={() => setView('dashboard')}
+            
+            // ⭐⭐⭐ จุดสำคัญที่มักลืมใส่ ⭐⭐⭐
+            username={username || "Guest"} 
+            category="hiragana"  // 👈 ต้องระบุตรงนี้ ไม่งั้น Game จะ error
+          />
         )}
       </main>
     </div>
