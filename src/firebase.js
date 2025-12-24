@@ -1,6 +1,6 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database"; // 👈 ต้อง import อันนี้
 
 // 1. เพิ่ม import AppCheck
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
@@ -27,5 +27,5 @@ const appCheck = initializeAppCheck(app, {
   // isTokenAutoRefreshEnabled: true หมายถึงให้ต่ออายุ Token อัตโนมัติ
   isTokenAutoRefreshEnabled: true 
 });
-export const db = getFirestore(app); // ส่งออกตัวแปร db ไปใช้บันทึกข้อมูล
+export const db = getDatabase(app);
 export default app;
