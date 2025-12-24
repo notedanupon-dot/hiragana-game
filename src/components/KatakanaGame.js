@@ -1,93 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { katakanaData } from '../data/katakana'; 
-import Game from './Game';
-import Dashboard from './Dashboard'; 
-import '../App.css';
+import React, { useState } from 'react';
+import { katakanaData } from '../data/katakana';
+import Game from '../components/Game';
+import '../App.css'; // เรียกใช้ CSS รวมเพื่อให้หน้าตาเหมือนกัน
 
-function KatakanaGame({ username }) {
-  const [view, setView] = useState('dashboard');
+const KatakanaGame = ({ username }) => {
+  // 1. ใช้ State ง่ายๆ แค่ว่าเล่นอยู่หรือไม่ (isPlaying)
+  const [isPlaying, setIsPlaying] = useState(false);
   
-  // ✅ 1. เพิ่ม State สำหรับเก็บค่าว่าผู้เล่นเลือกโหมดพิมพ์หรือไม่ (Default = false)
+  // 2. State สำหรับโหมดพิมพ์
   const [useInputMode, setUseInputMode] = useState(false);
 
-  const [userStats, setUserStats] = useState({
-    totalAttempts: 0,
-    totalCorrect: 0,
-    history: [],
-    charStats: {} 
-  });
+  // กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร (กัน Error)
+  const activeGameData = katakanaData.filter(item => item.character && item.character !== '');
 
-  const activeGameData = katakanaData.filter(item => item.character !== '');
+  const handleStart = () => {
+    setIsPlaying(true);
+  };
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('katakanaUserStats');
-    if (savedData) setUserStats(JSON.parse(savedData));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('katakanaUserStats', JSON.stringify(userStats));
-  }, [userStats]);
-
-  const handleGameEnd = (sessionData) => {
-    const newHistory = [...userStats.history, {
-      date: new Date().toLocaleDateString(),
-      score: sessionData.score,
-      total: sessionData.total,
-      accuracy: Math.round((sessionData.score / sessionData.total) * 100)
-    }];
-
-    setUserStats({
-      totalAttempts: userStats.totalAttempts + sessionData.total,
-      totalCorrect: userStats.totalCorrect + sessionData.score,
-      history: newHistory,
-      charStats: userStats.charStats
-    });
-
-    setView('dashboard');
+  const handleEnd = (result) => {
+    console.log("Game Ended", result);
+    setIsPlaying(false);
   };
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>Katakana Mastery <span className="jp-font">カタカナ</span></h1>
-      </header>
-      
-      <main>
-        {view === 'dashboard' && (
-          <div className="dashboard-wrapper">
-            
-            {/* ✅ 2. เพิ่มส่วนตัวเลือกโหมด (วางไว้เหนือ Dashboard) */}
-            <div className="mode-selector-container" style={{ textAlign: 'center', margin: '20px 0' }}>
-               <label className="mode-toggle-label">
-                 <input 
-                   type="checkbox" 
-                   checked={useInputMode} 
-                   onChange={(e) => setUseInputMode(e.target.checked)}
-                   className="mode-checkbox"
-                 />
-                 <span className="mode-text">เปิดโหมดพิมพ์ตอบ (ยาก) ⌨️</span>
-               </label>
-            </div>
-
-            <Dashboard stats={userStats} onStart={() => setView('game')} />
+    <div className="game-container">
+      {!isPlaying ? (
+        // --- ส่วนหน้าจอเมนู (เลียนแบบ HiraganaGame) ---
+        <div className="menu-screen">
+          <h1>Katakana Mastery <span className="jp-font">カタカナ</span></h1>
+          
+          {/* ตัวเลือกเปิด/ปิด โหมดพิมพ์ */}
+          <div className="mode-selector" style={{ marginBottom: '20px' }}>
+            <label style={{ fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <input 
+                type="checkbox" 
+                checked={useInputMode} 
+                onChange={(e) => setUseInputMode(e.target.checked)}
+                style={{ transform: 'scale(1.5)' }}
+              />
+              เปิดโหมดพิมพ์ตอบ (ยาก) ⌨️
+            </label>
           </div>
-        )}
-        
-        {view === 'game' && (
-          <Game 
-            dataset={activeGameData} 
-            onEnd={handleGameEnd} 
-            onCancel={() => setView('dashboard')}
-            username={username || "Guest"} 
-            category="katakana" 
 
-            // ✅ 3. ส่งค่าที่ผู้เล่นเลือกไปยัง Game Component
-            inputMode={useInputMode}
-          />
-        )}
-      </main>
+          <button className="start-btn" onClick={handleStart}>
+            เริ่มเกม 🚀
+          </button>
+        </div>
+      ) : (
+        // --- ส่วนหน้าจอเกม ---
+        <Game 
+          dataset={activeGameData} 
+          username={username || "Guest"} 
+          category="katakana"
+          onEnd={handleEnd} 
+          onCancel={() => setIsPlaying(false)}
+          
+          // ส่งค่าโหมดที่เลือกเข้าไป
+          inputMode={useInputMode} 
+        />
+      )}
     </div>
   );
-}
+};
 
 export default KatakanaGame;
