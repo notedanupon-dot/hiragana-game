@@ -4,6 +4,7 @@ import '../App.css';
 import { playAudio } from '../services/audioService'; // ✅ Import มาแล้ว
 
 const QUESTION_LIMIT = 10;
+const SHOW_AUDIO_BTN = false; // 👈 เปลี่ยนเป็น true ถ้าอยากให้แสดง, false เพื่อซ่อน
 
 const Game = ({ dataset, onEnd, onCancel, username, category }) => {
   const [questions, setQuestions] = useState([]);
@@ -98,21 +99,22 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
         ></div>
       </div>
 
-      <div className="question-area">
-        {/* แสดงผลตัวอักษร */}
-        <div className="hiragana-char">
-          {currentQ.char || currentQ.character || "?"}
-        </div>
+     <div className="question-area">
+    <div className="hiragana-char">
+      {currentQ.char || currentQ.character || "?"}
+    </div>
 
-        {/* ✅ เพิ่มปุ่มลำโพงตรงนี้ครับ */}
-        <button 
-            className="audio-btn" 
-            onClick={() => playAudio(currentQ.char || currentQ.character)}
-            title="ฟังเสียงอ่าน"
-        >
-            🔊
-        </button>
-      </div>
+    {/* ✅ ถ้า SHOW_AUDIO_BTN เป็น true ถึงจะแสดงปุ่ม */}
+    {SHOW_AUDIO_BTN && (
+      <button 
+          className="audio-btn" 
+          onClick={() => playAudio(currentQ.char || currentQ.character)}
+          title="ฟังเสียงอ่าน"
+      >
+          🔊
+      </button>
+    )}
+</div>
 
       <div className="options-grid">
         {currentQ.options.map((opt) => {
