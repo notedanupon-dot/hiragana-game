@@ -1,24 +1,40 @@
 // src/services/sfxService.js
 
-// ลิงก์เสียงเอฟเฟกต์ (ใช้ลิงก์ฟรีจาก CodeSandbox/Github)
-const CORRECT_URL = "https://codesandbox.io/static/wav/correct.wav";
-const WRONG_URL = "https://codesandbox.io/static/wav/wrong.wav";
+// สร้าง AudioContext ตัวจัดการเสียง
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// สร้างตัวแปร Audio เก็บไว้จะได้ไม่ต้องโหลดใหม่ทุกครั้งที่กด
-const correctAudio = new Audio(CORRECT_URL);
-const wrongAudio = new Audio(WRONG_URL);
+// ฟังก์ชันสร้างเสียง (Oscillator)
+const playTone = (freq, type, duration) => {
+  // เช็คว่า AudioContext พร้อมทำงานไหม (บาง Browser ต้องคลิกก่อนถึงจะยอมให้มีเสียง)
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 
-// ปรับระดับเสียง (0.0 - 1.0)
-correctAudio.volume = 0.5;
-wrongAudio.volume = 0.3;
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  osc.type = type; // รูปแบบเสียง: 'sine', 'square', 'sawtooth', 'triangle'
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime); // ความถี่เสียง
+
+  // ลดระดับเสียงลงหน่อยจะได้ไม่แสบหู
+  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+};
 
 export const playCorrect = () => {
-  // รีเซ็ตเวลาให้เริ่มเล่นที่วินาทีที่ 0 (เผื่อกดรัวๆ)
-  correctAudio.currentTime = 0;
-  correctAudio.play().catch(e => console.error("Audio play failed", e));
+  // เสียง "ปิ๊ง!" (เสียงสูง Sine wave)
+  // เล่น 2 โน้ตเร็วๆ ให้เหมือนเสียงเหรียญมาริโอ้
+  playTone(600, 'sine', 0.1);
+  setTimeout(() => playTone(1200, 'sine', 0.2), 50);
 };
 
 export const playWrong = () => {
-  wrongAudio.currentTime = 0;
-  wrongAudio.play().catch(e => console.error("Audio play failed", e));
+  // เสียง "ตื๊ด..." (เสียงต่ำ Sawtooth wave)
+  playTone(150, 'sawtooth', 0.4);
 };
