@@ -9,6 +9,7 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 const firebaseConfig = {
   apiKey: "AIzaSyDn7bqDndbozts8-J9Gv6HgCgYJWRzPSHs",
   authDomain: "japanese-master-e1f13.firebaseapp.com",
+  databaseURL: "https://japanese-master-e1f13-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "japanese-master-e1f13",
   storageBucket: "japanese-master-e1f13.firebasestorage.app",
   messagingSenderId: "206529901066",
