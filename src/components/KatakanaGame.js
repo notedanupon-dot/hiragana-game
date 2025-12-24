@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { katakanaData } from '../data/katakana'; // ตรวจสอบ path ให้ถูกต้อง
+import { katakanaData } from '../data/katakana'; 
 import Game from './Game';
-import Dashboard from './Dashboard'; // หรือ '../components/Dashboard' ตามโครงสร้างโฟลเดอร์จริงของคุณ
+import Dashboard from './Dashboard'; 
 import '../App.css';
 
 function KatakanaGame({ username }) {
   const [view, setView] = useState('dashboard');
+  
+  // ✅ 1. เพิ่ม State สำหรับเก็บค่าว่าผู้เล่นเลือกโหมดพิมพ์หรือไม่ (Default = false)
+  const [useInputMode, setUseInputMode] = useState(false);
+
   const [userStats, setUserStats] = useState({
     totalAttempts: 0,
     totalCorrect: 0,
@@ -13,22 +17,18 @@ function KatakanaGame({ username }) {
     charStats: {} 
   });
 
-  // กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร
   const activeGameData = katakanaData.filter(item => item.character !== '');
 
-  // โหลดสถิติจาก LocalStorage
   useEffect(() => {
     const savedData = localStorage.getItem('katakanaUserStats');
     if (savedData) setUserStats(JSON.parse(savedData));
   }, []);
 
-  // บันทึกสถิติลง LocalStorage
   useEffect(() => {
     localStorage.setItem('katakanaUserStats', JSON.stringify(userStats));
   }, [userStats]);
 
   const handleGameEnd = (sessionData) => {
-    // 1. อัปเดตสถิติ Local (ในเครื่อง)
     const newHistory = [...userStats.history, {
       date: new Date().toLocaleDateString(),
       score: sessionData.score,
@@ -43,8 +43,6 @@ function KatakanaGame({ username }) {
       charStats: userStats.charStats
     });
 
-    // *หมายเหตุ: การ saveScoreToFirebase ถูกทำในไฟล์ Game.js แล้ว จึงไม่ต้องทำตรงนี้อีก*
-
     setView('dashboard');
   };
 
@@ -56,7 +54,23 @@ function KatakanaGame({ username }) {
       
       <main>
         {view === 'dashboard' && (
-          <Dashboard stats={userStats} onStart={() => setView('game')} />
+          <div className="dashboard-wrapper">
+            
+            {/* ✅ 2. เพิ่มส่วนตัวเลือกโหมด (วางไว้เหนือ Dashboard) */}
+            <div className="mode-selector-container" style={{ textAlign: 'center', margin: '20px 0' }}>
+               <label className="mode-toggle-label">
+                 <input 
+                   type="checkbox" 
+                   checked={useInputMode} 
+                   onChange={(e) => setUseInputMode(e.target.checked)}
+                   className="mode-checkbox"
+                 />
+                 <span className="mode-text">เปิดโหมดพิมพ์ตอบ (ยาก) ⌨️</span>
+               </label>
+            </div>
+
+            <Dashboard stats={userStats} onStart={() => setView('game')} />
+          </div>
         )}
         
         {view === 'game' && (
@@ -64,10 +78,11 @@ function KatakanaGame({ username }) {
             dataset={activeGameData} 
             onEnd={handleGameEnd} 
             onCancel={() => setView('dashboard')}
-            
-            // ✅ จุดสำคัญ: ส่งข้อมูลไปให้ Game.js เพื่อบันทึกคะแนน
             username={username || "Guest"} 
             category="katakana" 
+
+            // ✅ 3. ส่งค่าที่ผู้เล่นเลือกไปยัง Game Component
+            inputMode={useInputMode}
           />
         )}
       </main>
