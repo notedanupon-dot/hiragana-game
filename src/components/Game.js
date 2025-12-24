@@ -5,6 +5,7 @@ import { playCorrect, playWrong } from '../services/sfxService';
 import '../App.css'; 
 
 const GAME_DURATION = 60; // ⏱️ ตั้งเวลาเล่นเกมตรงนี้ (วินาที)
+const SHOW_AUDIO = false; // 👈 ตั้งเป็น false เพื่อปิดลำโพง
 
 const Game = ({ dataset, onEnd, onCancel, username, category, inputMode = false }) => {
   // --- State ---
@@ -175,18 +176,21 @@ const Game = ({ dataset, onEnd, onCancel, username, category, inputMode = false 
       </div>
 
       <div className="question-area">
-        <div className="hiragana-char">
-          {currentQ.char || currentQ.character || "?"}
-        </div>
+  <div className="hiragana-char">
+    {currentQ.char || currentQ.character || "?"}
+  </div>
 
-        <button 
-            className="audio-btn" 
-            onClick={() => playAudio(currentQ.char || currentQ.character)}
-            title="ฟังเสียงอ่าน"
-        >
-            🔊
-        </button>
-      </div>
+  {/* 👇 เพิ่มเงื่อนไข SHOW_AUDIO && ไว้ข้างหน้า */}
+  {SHOW_AUDIO && (
+    <button 
+        className="audio-btn" 
+        onClick={() => playAudio(currentQ.char || currentQ.character)}
+        title="ฟังเสียงอ่าน"
+    >
+        🔊
+    </button>
+  )}
+</div>
 
       {inputMode ? (
         <div className="input-mode-area">
