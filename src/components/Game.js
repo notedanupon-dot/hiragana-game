@@ -5,7 +5,7 @@ import { playCorrect, playWrong } from '../services/sfxService';
 import '../App.css'; 
 
 const QUESTION_LIMIT = 10;
-const SHOW_AUDIO_BTN = true; // เปิดปุ่มเสียงไว้
+const SHOW_AUDIO_BTN = false; // เปิดปุ่มเสียงไว้
 
 // ✅ เพิ่ม prop: inputMode (รับค่า true/false)
 const Game = ({ dataset, onEnd, onCancel, username, category, inputMode = false }) => {
