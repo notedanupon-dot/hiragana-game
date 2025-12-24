@@ -654,3 +654,38 @@ header h1 {
   transform: scale(0.95); /* หดลงตอนกด */
   background-color: #d0d0d0;
 }
+
+/* ==============================
+   Visual Effects (Flash)
+============================== */
+
+/* เพิ่ม Transition ให้การ์ดเกม เพื่อให้การเปลี่ยนสีดูนุ่มนวล ไม่กระชาก */
+.game-card {
+  transition: all 0.3s ease-in-out;
+  border: 2px solid transparent; /* เตรียมขอบใสๆ ไว้ก่อน */
+}
+
+/* เอฟเฟกต์เมื่อตอบถูก (สีเขียว) */
+.game-card.flash-correct {
+  background-color: rgba(232, 245, 233, 0.95) !important; /* พื้นหลังเขียวอ่อนๆ */
+  border-color: #4CAF50 !important;      /* ขอบสีเขียวเข้ม */
+  box-shadow: 0 0 25px rgba(76, 175, 80, 0.6) !important; /* เงาสีเขียวฟุ้งๆ */
+  transform: scale(1.02); /* ขยายขึ้นนิดนึงให้ดูมีมิติ */
+}
+
+/* เอฟเฟกต์เมื่อตอบผิด (สีแดง) */
+.game-card.flash-wrong {
+  background-color: rgba(255, 235, 238, 0.95) !important; /* พื้นหลังแดงอ่อนๆ */
+  border-color: #F44336 !important;      /* ขอบสีแดงเข้ม */
+  box-shadow: 0 0 25px rgba(244, 67, 54, 0.6) !important; /* เงาสีแดงฟุ้งๆ */
+  animation: shake 0.4s; /* เพิ่มการสั่นเล็กน้อยตอนผิด */
+}
+
+/* ท่าทางอนิเมชั่นการสั่น (Shake Animation) */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}

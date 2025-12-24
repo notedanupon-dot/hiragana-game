@@ -14,6 +14,7 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null); 
   const [isAnswered, setIsAnswered] = useState(false);
   const [sessionDetails, setSessionDetails] = useState([]); 
+  const [feedbackStatus, setFeedbackStatus] = useState(null);
 
   // Initialize Game
   useEffect(() => {
@@ -54,10 +55,16 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
     // ✅ ส่วนที่เพิ่ม: เช็คว่าถูกหรือผิด แล้วสั่งเล่นเสียง
     if (isCorrect) {
         playCorrect(); // 🔊 เสียงปิ๊ง!
+        setFeedbackStatus('correct'); // 🟢 สั่งให้สถานะเป็น "ถูก"
     } else {
         playWrong();   // 🔊 เสียงตื๊ด...
+        setFeedbackStatus('wrong');   // 🔴 สั่งให้สถานะเป็น "ผิด"
     }
     
+    setTimeout(() => {
+        setFeedbackStatus(null);
+    }, 600);
+
     setSelectedAnswer(romaji);
     setIsAnswered(true);
 
@@ -99,7 +106,7 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
   const currentQ = questions[currentIndex];
 
   return (
-    <div className="game-card">
+    <div className={`game-card ${feedbackStatus === 'correct' ? 'flash-correct' : feedbackStatus === 'wrong' ? 'flash-wrong' : ''}`}>
       <div className="progress-bar">
         <div 
           className="fill" 
