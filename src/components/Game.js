@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { saveScoreToFirebase } from '../services/scoreService'; // ✅ Import มาแล้วต้องเรียกใช้
-import '../App.css'; // อย่าลืม CSS
+import { saveScoreToFirebase } from '../services/scoreService'; 
+import '../App.css'; 
+import { playAudio } from '../services/audioService'; // ✅ Import มาแล้ว
 
 const QUESTION_LIMIT = 10;
 
-// ✅ รับ props: username และ category เพิ่มเข้ามา
 const Game = ({ dataset, onEnd, onCancel, username, category }) => {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,6 +33,16 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
     setQuestions(gameQuestions);
   }, [dataset]);
 
+  // ✅ (Optional) Effect: ถ้าอยากให้เสียงดัง "อัตโนมัติ" ทันทีที่โจทย์มา ให้เอา Comment ออกครับ
+  /*
+  useEffect(() => {
+    if (questions.length > 0 && questions[currentIndex]) {
+        const textToSpeak = questions[currentIndex].char || questions[currentIndex].character;
+        playAudio(textToSpeak);
+    }
+  }, [currentIndex, questions]);
+  */
+
   const handleAnswer = (romaji) => {
     if (isAnswered) return;
 
@@ -42,7 +52,6 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
     setSelectedAnswer(romaji);
     setIsAnswered(true);
 
-    // คำนวณคะแนนปัจจุบันเตรียมไว้เลย (เผื่อใช้ทันที)
     const nextScore = isCorrect ? score + 1 : score;
     if (isCorrect) setScore(nextScore);
 
@@ -55,14 +64,11 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
     // Delay ก่อนไปข้อถัดไป
     setTimeout(() => {
       if (currentIndex + 1 < QUESTION_LIMIT) {
-        // ยังไม่จบเกม -> ไปข้อต่อไป
         setCurrentIndex(currentIndex + 1);
         setIsAnswered(false);
         setSelectedAnswer(null);
       } else {
-        // 🏁 จบเกม (Game Over)
-        
-        // 1. บันทึกคะแนนลง Firebase ทันที!
+        // 🏁 จบเกม
         if (category) {
             console.log("Saving score:", nextScore, "for", category);
             saveScoreToFirebase(username, nextScore, category);
@@ -70,9 +76,8 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
             console.warn("No category provided, score not saved to DB.");
         }
 
-        // 2. ส่งข้อมูลกลับไปที่ Parent Component
         onEnd({
-          score: nextScore, // ✅ ใช้ nextScore เพื่อความชัวร์ว่ารวมข้อสุดท้ายแล้ว
+          score: nextScore, 
           total: QUESTION_LIMIT,
           details: newDetails
         });
@@ -94,10 +99,19 @@ const Game = ({ dataset, onEnd, onCancel, username, category }) => {
       </div>
 
       <div className="question-area">
-        {/* แสดงผลรองรับทั้งคีย์ char และ character */}
+        {/* แสดงผลตัวอักษร */}
         <div className="hiragana-char">
           {currentQ.char || currentQ.character || "?"}
         </div>
+
+        {/* ✅ เพิ่มปุ่มลำโพงตรงนี้ครับ */}
+        <button 
+            className="audio-btn" 
+            onClick={() => playAudio(currentQ.char || currentQ.character)}
+            title="ฟังเสียงอ่าน"
+        >
+            🔊
+        </button>
       </div>
 
       <div className="options-grid">
