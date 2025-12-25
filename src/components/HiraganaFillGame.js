@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDatabase, ref, runTransaction } from 'firebase/database';
-import DrawModal from './DrawModal'; // ✅ Import เข้ามา
+import DrawModal from './DrawModal';
 import '../App.css';
 
-// ... (CHART_DATA คงเดิม) ...
+// ข้อมูลตาราง (คงเดิม)
 const CHART_DATA = [
-    // ... (ข้อมูลเดิมทั้งหมด) ...
-    // หากไม่มีให้ copy จากไฟล์เดิมมาใส่ครับ หรือใช้ตัวแปรเดิม
   { row: '', chars: [{ char: 'あ', romaji: 'a' }, { char: 'い', romaji: 'i' }, { char: 'う', romaji: 'u' }, { char: 'え', romaji: 'e' }, { char: 'お', romaji: 'o' }] },
   { row: 'K', chars: [{ char: 'か', romaji: 'ka' }, { char: 'き', romaji: 'ki' }, { char: 'く', romaji: 'ku' }, { char: 'け', romaji: 'ke' }, { char: 'こ', romaji: 'ko' }] },
   { row: 'S', chars: [{ char: 'さ', romaji: 'sa' }, { char: 'し', romaji: 'shi' }, { char: 'す', romaji: 'su' }, { char: 'せ', romaji: 'se' }, { char: 'そ', romaji: 'so' }] },
@@ -20,16 +18,14 @@ const CHART_DATA = [
   { row: 'N', chars: [{ char: 'ん', romaji: 'n' }, { char: null, romaji: '' }, { char: null, romaji: '' }, { char: null, romaji: '' }, { char: null, romaji: '' }] }
 ];
 
-
 const HiraganaFillGame = ({ username, onBack }) => {
   const [difficulty, setDifficulty] = useState(null);
   const [gridState, setGridState] = useState([]);
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState(0);
   
-  // State สำหรับโหมดวาดเขียน
-  const [isDrawMode, setIsDrawMode] = useState(false); // ✅ Toggle ระหว่าง พิมพ์ / วาด
-  const [activeCell, setActiveCell] = useState(null); // ✅ เก็บ cell ที่กำลังวาดอยู่
+  // State สำหรับโหมดวาดเขียน (ตัด isDrawMode ออก เพราะบังคับวาดอย่างเดียว)
+  const [activeCell, setActiveCell] = useState(null); 
 
   // Timer State
   const [timeLeft, setTimeLeft] = useState(0); 
@@ -73,15 +69,16 @@ const HiraganaFillGame = ({ username, onBack }) => {
           rowData.push({ ...item, type: 'empty' });
         } else {
           let isHidden = false;
+          // Normal: สุ่มหาย 50%, Hard/Master: หาย 100%
           if (selectedDiff === 'normal') isHidden = Math.random() < 0.5;
           else isHidden = true;
 
           rowData.push({
             ...item,
-            rIndex, cIndex, // เก็บพิกัดไว้ใช้อ้างอิงตอนวาด
+            rIndex, cIndex,
             isHidden: isHidden,
             isCorrect: !isHidden, 
-            userInput: ''
+            userInput: '' // เอาไว้เก็บสัญลักษณ์ '✏️'
           });
         }
       });
@@ -91,24 +88,6 @@ const HiraganaFillGame = ({ username, onBack }) => {
     setGridState(initialGrid);
     setCompleted(false);
     setScore(0);
-  };
-
-  const handleInputChange = (rowIndex, colIndex, value) => {
-    if (!gameActive) return;
-
-    const newGrid = [...gridState];
-    const cell = newGrid[rowIndex][colIndex];
-    cell.userInput = value;
-
-    if (value.toLowerCase() === cell.romaji) {
-      cell.isCorrect = true;
-      cell.isHidden = false;
-      setScore(prev => prev + 10);
-      if (difficulty !== 'normal') setTimeLeft(prev => prev + 2);
-    }
-
-    setGridState(newGrid);
-    checkCompletion(newGrid);
   };
 
   // ✅ ฟังก์ชันเมื่อวาดถูกต้อง (Self-Check Passed)
@@ -121,13 +100,14 @@ const HiraganaFillGame = ({ username, onBack }) => {
 
     cell.isCorrect = true;
     cell.isHidden = false;
-    cell.userInput = '✏️'; // ใส่สัญลักษณ์ว่ามาจากการวาด
+    cell.userInput = '✏️'; // สัญลักษณ์บอกว่าผ่านการวาดมา
 
     setScore(prev => prev + 10);
+    // เพิ่มเวลาเล็กน้อยเป็นรางวัล
     if (difficulty !== 'normal') setTimeLeft(prev => prev + 2);
     
     setGridState(newGrid);
-    setActiveCell(null); // ปิด Modal
+    setActiveCell(null);
     checkCompletion(newGrid);
   };
 
@@ -155,17 +135,22 @@ const HiraganaFillGame = ({ username, onBack }) => {
     }
   };
 
+  // UI เลือกความยาก
   if (!difficulty) {
     return (
       <div className="game-container" style={{ maxWidth: '600px', textAlign: 'center' }}>
          <button onClick={onBack} className="back-btn">⬅ เมนูหลัก</button>
-         {/* ... (Code หน้าเลือกความยากเหมือนเดิม) ... */}
          <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>เลือกความท้าทาย 🔥</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {['normal', 'hard', 'master'].map(diff => (
             <button key={diff} className={`diff-btn ${diff}`} onClick={() => setDifficulty(diff)}>
               <span style={{fontSize:'24px'}}>{diff === 'normal' ? '😊' : diff === 'hard' ? '🔥' : '👹'}</span>
-              <div style={{textTransform: 'capitalize'}}><strong>{diff}</strong></div>
+              <div style={{textTransform: 'capitalize'}}>
+                <strong>{diff}</strong><br/>
+                <small style={{color: '#666', fontWeight: 'normal'}}>
+                  {diff === 'normal' ? 'ตารางหายบางส่วน (มีใบ้)' : diff === 'hard' ? 'ตารางเปล่า (มีหัวตาราง)' : 'ตารางเปล่า (ไม่มีตัวช่วย!)'}
+                </small>
+              </div>
             </button>
           ))}
         </div>
@@ -173,10 +158,11 @@ const HiraganaFillGame = ({ username, onBack }) => {
     );
   }
 
+  // UI หน้าเล่นเกม (Drawing Only)
   return (
     <div className="game-container" style={{ maxWidth: '850px' }}>
       
-      {/* ✅ Modal วาดเขียน */}
+      {/* Modal วาดเขียน */}
       {activeCell && (
         <DrawModal 
           targetChar={activeCell.char}
@@ -186,24 +172,14 @@ const HiraganaFillGame = ({ username, onBack }) => {
         />
       )}
 
-      <div className="header-nav" style={{justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px'}}>
+      <div className="header-nav" style={{justifyContent: 'space-between', alignItems: 'center'}}>
         <button onClick={() => setDifficulty(null)} className="back-btn" style={{fontSize: '14px'}}>❌ เลิกเล่น</button>
         
-        {/* ✅ Toggle Draw Mode */}
-        <div 
-          onClick={() => setIsDrawMode(!isDrawMode)}
-          style={{
-            cursor: 'pointer',
-            padding: '8px 15px',
-            background: isDrawMode ? '#E91E63' : '#ddd',
-            color: isDrawMode ? 'white' : '#333',
-            borderRadius: '20px',
-            fontWeight: 'bold',
-            display: 'flex', alignItems: 'center', gap: '5px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }}
-        >
-          {isDrawMode ? '✏️ โหมดวาด (แตะเพื่อเปลี่ยน)' : '⌨️ โหมดพิมพ์ (แตะเพื่อเปลี่ยน)'}
+        <div style={{textAlign: 'center'}}>
+           <div style={{ fontSize: '14px', color: '#888' }}>
+             โหมด: {difficulty.toUpperCase()}
+           </div>
+           <h2 style={{margin: '5px 0'}}>เขียนตารางฮิรางานะ ✏️</h2>
         </div>
 
         <div className={`timer-box ${timeLeft < 30 ? 'danger' : ''}`}>
@@ -228,29 +204,22 @@ const HiraganaFillGame = ({ username, onBack }) => {
                 <div 
                   key={cIndex} 
                   className={`grid-cell ${cell.isCorrect ? 'correct' : 'pending'}`}
-                  // ✅ ถ้าเป็นโหมดวาด และยังไม่ถูก ให้คลิกเปิด Modal
+                  // ✅ คลิกเพื่อวาดได้เลย (ถ้าช่องนั้นถูกซ่อนอยู่และเกมยังไม่จบ)
                   onClick={() => {
-                    if (isDrawMode && cell.isHidden && gameActive) {
+                    if (cell.isHidden && gameActive) {
                       setActiveCell(cell);
                     }
                   }}
-                  style={{ cursor: (isDrawMode && cell.isHidden) ? 'pointer' : 'default' }}
+                  style={{ 
+                    cursor: (cell.isHidden && gameActive) ? 'pointer' : 'default',
+                    position: 'relative'
+                  }}
                 >
                   {cell.isHidden ? (
-                    isDrawMode ? (
-                       // ✅ แสดงไอคอนดินสอถ้าอยู่ในโหมดวาด
-                       <span style={{fontSize: '20px', opacity: 0.5}}>✏️</span>
-                    ) : (
-                      <input
-                        type="text"
-                        maxLength={3}
-                        className="grid-input"
-                        placeholder={difficulty === 'normal' ? "?" : ""} 
-                        value={cell.userInput}
-                        onChange={(e) => handleInputChange(rIndex, cIndex, e.target.value)}
-                        disabled={completed || !gameActive}
-                      />
-                    )
+                    // แสดงเครื่องหมาย ? หรือ ดินสอ เพื่อสื่อว่าให้กดวาด
+                    <div style={{opacity: 0.4, fontSize: '24px'}}>
+                       {difficulty === 'normal' ? '?' : '✏️'}
+                    </div>
                   ) : (
                     <span className="grid-char">{cell.char}</span>
                   )}
