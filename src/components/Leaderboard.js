@@ -12,16 +12,14 @@ function Leaderboard() {
     const db = getDatabase();
     
     // อ้างอิงไปที่ path: scores/hiragana (หรือหมวดอื่นๆ)
-    // เรียงตามคะแนน (score) และเอาแค่ 10 อันดับล่าสุด
+    // ดึงมา 10 อันดับเหมือนเดิม (เผื่อไว้) แล้วค่อยมาตัดหน้าจอเอา
     const scoreRef = query(ref(db, `scores/${activeTab}`), orderByChild('score'), limitToLast(10));
 
-    // onValue คือหัวใจของ Realtime (จะทำงานทุกครั้งที่ Database มีการเปลี่ยนแปลง)
     const unsubscribe = onValue(scoreRef, (snapshot) => {
       const data = snapshot.val();
       const sortedScores = [];
 
       if (data) {
-        // แปลงข้อมูลจาก Object เป็น Array
         Object.keys(data).forEach(key => {
           sortedScores.push(data[key]);
         });
@@ -30,13 +28,12 @@ function Leaderboard() {
       }
       
       setScores(sortedScores);
-      setLoading(false); // โหลดเสร็จแล้ว
+      setLoading(false);
     }, (error) => {
       console.error("Error reading data:", error);
       setLoading(false);
     });
 
-    // คืนค่าฟังก์ชันเพื่อหยุดฟังเมื่อเปลี่ยนหน้า
     return () => unsubscribe();
   }, [activeTab]);
 
@@ -62,13 +59,14 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          scores.map((player, index) => (
+          /* ✅ แก้ไขตรงนี้: เพิ่ม .slice(0, 3) เพื่อตัดให้เหลือแค่ 3 อันดับแรก */
+          scores.slice(0, 3).map((player, index) => (
             <div key={index} className={`rank-item rank-${index + 1}`}>
               <div className="rank-number">
                 {index === 0 && '🥇'}
                 {index === 1 && '🥈'}
                 {index === 2 && '🥉'}
-                {index > 2 && `#${index + 1}`}
+                {/* เงื่อนไข index > 2 ไม่จำเป็นต้องมีแล้วเพราะเราตัดแค่ 3 คน */}
               </div>
               <div className="rank-info">
                 <span className="rank-name">{player.username}</span>
