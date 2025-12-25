@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, onValue, update } from 'firebase/database';
 import { shopItems } from '../data/shopItems';
-import '../Shop.css'; // เดี๋ยวสร้าง CSS แยก
+import '../Shop.css'; 
 
 const Shop = ({ username, onBack }) => {
   const [coins, setCoins] = useState(0);
@@ -55,7 +55,8 @@ const Shop = ({ username, onBack }) => {
     const userRef = ref(db, `users/${username}`);
     
     const newEquipped = { ...equipped, [item.type]: item.value };
-    // ถ้าเป็น bg อาจจะต้องเก็บค่าสีแยก (ขอทำแบบง่ายก่อน)
+    
+    // Logic การเปลี่ยนอุปกรณ์
     if(item.type === 'bg') newEquipped.bg = item.value;
     if(item.type === 'frame') newEquipped.frame = item.value;
     if(item.type === 'avatar') newEquipped.avatar = item.value;
@@ -102,25 +103,39 @@ const Shop = ({ username, onBack }) => {
 
           return (
             <div key={item.id} className={`shop-item ${isOwned ? 'owned' : ''}`}>
-             <div className="item-icon" style={item.type === 'bg' ? {background: item.value, width: '50px', height: '50px', borderRadius: '50%', border: '1px solid #ccc'} : {}}>
-  
-  {/* ✅ 1. ถ้าเป็น Avatar ให้โชว์ Emoji */}
-  {item.type === 'avatar' && (
-    <span style={{ fontSize: '40px' }}>{item.value}</span>
-  )}
+              
+              {/* --- ✅ ส่วนที่แก้ไข: การแสดงผลไอคอน (แยกประเภทชัดเจน) --- */}
+              <div className="item-icon" style={{
+                 // สไตล์พื้นฐานของกล่องไอคอน
+                 width: '60px', 
+                 height: '60px',
+                 display: 'flex',
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 borderRadius: '50%',
+                 // ถ้าเป็น BG ให้โชว์สีพื้นหลังที่กล่องเลย
+                 ...(item.type === 'bg' ? { background: item.value, border: '1px solid #ddd' } : {})
+              }}>
+                
+                {/* 1. ถ้าเป็น Avatar: ให้แสดง Emoji (Text) */}
+                {item.type === 'avatar' && <span style={{ fontSize: '40px' }}>{item.value}</span>}
 
-  {/* ✅ 2. ถ้าเป็น Frame ให้สร้างกล่องสี่เหลี่ยมมาโชว์ขอบ */}
-  {item.type === 'frame' && (
-    <div style={{
-      width: '50px',
-      height: '50px',
-      borderRadius: '50%', // ให้กรอบเป็นวงกลมเหมือนตอนใส่จริง
-      border: item.value.split(';')[0], // ตัด string เอาแค่ส่วน border (แก้บัคกรอบสายรุ้ง)
-      boxSizing: 'border-box'
-    }}></div>
-  )}
+                {/* 2. ถ้าเป็น Frame: ให้แสดงเป็นกล่องที่มี Border (ไม่เอา Text) */}
+                {item.type === 'frame' && (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    border: item.value, // ใส่ค่า border CSS ตรงนี้
+                    boxSizing: 'border-box'
+                  }}></div>
+                )}
 
-</div>
+                {/* 3. ถ้าเป็น BG: ไม่ต้องใส่อะไรข้างใน (เพราะใส่สีที่ style ของแม่มันแล้ว) */}
+
+              </div>
+              {/* --- จบส่วนแก้ไข --- */}
+
               <h4>{item.name}</h4>
               
               {!isOwned ? (
