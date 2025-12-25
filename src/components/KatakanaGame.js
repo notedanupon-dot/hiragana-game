@@ -3,8 +3,10 @@ import { getDatabase, ref, runTransaction } from 'firebase/database';
 import { katakanaData } from '../data/katakana';
 import Game from '../components/Game';
 import Profile from '../components/Profile';
-import Shop from '../pages/Shop'; // ✅ Import ให้ถูก Path
+import Shop from '../pages/Shop'; 
 import '../App.css'; 
+// ✅ Import ไฟล์เกมเติมคำ
+import KatakanaFillGame from './KatakanaFillGame';
 
 const KatakanaGame = ({ username }) => {
   const [view, setView] = useState('menu'); 
@@ -55,7 +57,7 @@ const KatakanaGame = ({ username }) => {
       {view === 'menu' && (
         <div className="menu-screen" style={{ position: 'relative' }}>
           
-          {/* ✅ 1. ย้ายปุ่มร้านค้ามาไว้ด้านบน (เป็น Toolbar) */}
+          {/* ✅ ปุ่มร้านค้าด้านบน */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button 
               className="shop-btn-top"
@@ -96,6 +98,15 @@ const KatakanaGame = ({ username }) => {
           <button className="start-btn" onClick={() => setView('game')}>
             เริ่มเกม 🚀
           </button>
+          
+          {/* ✅ เพิ่มปุ่มเข้าโหมดเติมตาราง (Katakana Fill Chart) */}
+          <button 
+            className="start-btn" 
+            style={{ marginTop: '15px', background: '#FF5722' }} // สีส้มเข้ม
+            onClick={() => setView('fillchart')}
+          >
+            🧩 เติมตารางคาตาคานะ
+          </button>
 
           <button 
             className="text-btn" 
@@ -104,8 +115,6 @@ const KatakanaGame = ({ username }) => {
           >
             📊 ดูสถิติพัฒนาการ
           </button>
-          
-          {/* ❌ ลบปุ่มร้านค้าอันเดิมที่อยู่ข้างล่างออก */}
 
         </div>
       )}
@@ -119,6 +128,14 @@ const KatakanaGame = ({ username }) => {
           onEnd={handleEnd} 
           onCancel={() => setView('menu')}
           inputMode={useInputMode} 
+        />
+      )}
+
+      {/* --- ✅ เพิ่มส่วนแสดงผล Katakana Fill Chart --- */}
+      {view === 'fillchart' && (
+        <KatakanaFillGame 
+          username={username || "Guest"} 
+          onBack={() => setView('menu')} 
         />
       )}
 
