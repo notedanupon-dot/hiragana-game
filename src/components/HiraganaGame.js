@@ -5,6 +5,8 @@ import Profile from '../components/Profile';
 import Shop from '../pages/Shop'; 
 import { hiraganaData } from '../data/hiragana';
 import '../App.css'; 
+// ✅ Import ไฟล์เกมเติมคำ (ตรวจสอบว่าไฟล์นี้อยู่ใน folder components แล้ว)
+import HiraganaFillGame from './HiraganaFillGame';
 
 const HiraganaGame = ({ username }) => {
   const [view, setView] = useState('menu'); 
@@ -99,6 +101,15 @@ const HiraganaGame = ({ username }) => {
             เริ่มเกม 🚀
           </button>
 
+          {/* ✅ เพิ่มปุ่มเข้าโหมดเติมตาราง (Hiragana Fill Chart) */}
+          <button 
+            className="start-btn" 
+            style={{ marginTop: '15px', background: '#9C27B0' }} // ใช้สีม่วงเพื่อให้ดูแตกต่าง
+            onClick={() => setView('fillchart')}
+          >
+            🧩 เติมตารางฮิรางานะ
+          </button>
+
           <button 
             className="text-btn" 
             style={{ marginTop: '15px', fontSize: '16px', color: '#555' }}
@@ -107,11 +118,10 @@ const HiraganaGame = ({ username }) => {
             📊 ดูสถิติพัฒนาการ
           </button>
 
-          {/* ❌ ลบปุ่มร้านค้าด้านล่างออกแล้ว */}
         </div>
       )}
 
-      {/* --- GAME --- */}
+      {/* --- GAME (Quiz ปกติ) --- */}
       {view === 'game' && (
         <Game 
           dataset={hiraganaData} 
@@ -120,6 +130,14 @@ const HiraganaGame = ({ username }) => {
           onEnd={handleEnd} 
           onCancel={() => setView('menu')}
           inputMode={useInputMode} 
+        />
+      )}
+
+      {/* --- ✅ เพิ่มส่วนแสดงผล Hiragana Fill Chart --- */}
+      {view === 'fillchart' && (
+        <HiraganaFillGame 
+          username={username || "Guest"} 
+          onBack={() => setView('menu')} 
         />
       )}
 

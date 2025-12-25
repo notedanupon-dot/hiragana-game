@@ -860,3 +860,102 @@ header h1 {
 .rank-3 {
   border: 2px solid #CD7F32; /* ขอบสีทองแดง */
 }
+
+/* =========================================
+   📝 Hiragana Fill Grid Styling
+   ========================================= */
+.hiragana-grid {
+  display: grid;
+  grid-template-columns: 40px repeat(5, 1fr); /* 1 แถวป้ายชื่อ + 5 แถวตัวอักษร */
+  gap: 8px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  max-width: 100%;
+  overflow-x: auto; /* เผื่อจอเล็กเลื่อนซ้ายขวาได้ */
+}
+
+/* หัวตาราง (a, i, u, e, o) */
+.grid-header {
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #888;
+  text-align: center;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #eee;
+}
+
+/* ป้ายกำกับแถว (K, S, T...) */
+.row-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+  background: #f9f9f9;
+  border-radius: 5px;
+}
+
+/* กล่องตัวอักษร */
+.grid-cell {
+  aspect-ratio: 1/1; /* ให้เป็นสี่เหลี่ยมจัตุรัส */
+  background: #f0f4f8;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.grid-cell.correct {
+  background: #e8f5e9; /* สีเขียวอ่อนเมื่อถูก */
+  color: #2e7d32;
+  border: 2px solid #c8e6c9;
+}
+
+.grid-cell.empty {
+  background: transparent; /* ช่องว่างที่ไม่มีตัวอักษร (เช่น Yi) */
+}
+
+/* ช่อง input กรอกคำตอบ */
+.grid-input {
+  width: 80%;
+  height: 60%;
+  text-align: center;
+  font-size: 18px;
+  border: 2px dashed #bbb;
+  border-radius: 8px;
+  background: white;
+  outline: none;
+}
+
+.grid-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+}
+
+.romaji-hint {
+  font-size: 10px;
+  color: #999;
+  margin-top: -5px;
+}
+
+/* Responsive: มือถือ */
+@media (max-width: 600px) {
+  .hiragana-grid {
+    gap: 4px;
+    padding: 10px;
+  }
+  .grid-cell {
+    font-size: 18px;
+    border-radius: 6px;
+  }
+  .grid-input {
+    font-size: 14px;
+  }
+}
