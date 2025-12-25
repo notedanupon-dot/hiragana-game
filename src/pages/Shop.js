@@ -102,11 +102,25 @@ const Shop = ({ username, onBack }) => {
 
           return (
             <div key={item.id} className={`shop-item ${isOwned ? 'owned' : ''}`}>
-              <div className="item-icon" style={item.type === 'bg' ? {background: item.value, width: '50px', height: '50px', borderRadius: '50%'} : {}}>
-                 {item.type !== 'bg' && item.value} 
-                 {/* ถ้าเป็น Frame ให้โชว์ตัวอย่างกรอบแทน */}
-                 {item.type === 'frame' && <div style={{width: '100%', height: '100%', border: item.value}}></div>}
-              </div>
+             <div className="item-icon" style={item.type === 'bg' ? {background: item.value, width: '50px', height: '50px', borderRadius: '50%', border: '1px solid #ccc'} : {}}>
+  
+  {/* ✅ 1. ถ้าเป็น Avatar ให้โชว์ Emoji */}
+  {item.type === 'avatar' && (
+    <span style={{ fontSize: '40px' }}>{item.value}</span>
+  )}
+
+  {/* ✅ 2. ถ้าเป็น Frame ให้สร้างกล่องสี่เหลี่ยมมาโชว์ขอบ */}
+  {item.type === 'frame' && (
+    <div style={{
+      width: '50px',
+      height: '50px',
+      borderRadius: '50%', // ให้กรอบเป็นวงกลมเหมือนตอนใส่จริง
+      border: item.value.split(';')[0], // ตัด string เอาแค่ส่วน border (แก้บัคกรอบสายรุ้ง)
+      boxSizing: 'border-box'
+    }}></div>
+  )}
+
+</div>
               <h4>{item.name}</h4>
               
               {!isOwned ? (
