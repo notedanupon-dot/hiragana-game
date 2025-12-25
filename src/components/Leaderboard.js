@@ -2,6 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, query, orderByChild, limitToLast, onValue } from 'firebase/database';
 import '../App.css';
 
+// --- ✅ สร้าง Component ย่อยสำหรับแสดงแต่ละแถว (เพื่อดึงรูป Avatar แยกรายคน) ---
+const LeaderboardItem = ({ player, rank }) => {
+  const [equipped, setEquipped] = useState({ avatar: '👤', frame: 'none', bg: '#fff' });
+
+  useEffect(() => {
+    // ถ้าเป็น Guest ไม่ต้องไปดึงข้อมูล
+    if (player.username === 'Guest') return;
+
+    const db = getDatabase();
+    // ดึงข้อมูลการแต่งตัวของ user คนนี้
+    const userRef = ref(db, `users/${player.username}/equipped`);
+
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setEquipped(data);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [player.username]);
+
+  return (
+    <div className={`rank-item rank-${rank}`}>
+      <div className="rank-number">
+        {rank === 1 && '🥇'}
+        {rank === 2 && '🥈'}
+        {rank === 3 && '🥉'}
+      </div>
+
+      {/* ✅ ส่วนแสดง Avatar และ Frame */}
+      <div className="rank-avatar-container" style={{ position: 'relative', width: '45px', height: '45px', marginRight: '10px' }}>
+         {/* กรอบรูป (Frame) */}
+         <div 
+            style={{ 
+               position: 'absolute', 
+               top: 0, left: 0, 
+               width: '100%', height: '100%', 
+               borderRadius: '50%', 
+               border: equipped.frame === 'none' ? '2px solid #ddd' : equipped.frame,
+               pointerEvents: 'none', // ให้คลิกทะลุได้
+               zIndex: 2
+            }}
+         ></div>
+
+         {/* พื้นหลัง (BG) และ ตัวไอคอน (Avatar) */}
+         <div 
+            style={{
+              width: '100%', height: '100%',
+              background: equipped.bg,
+              borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '24px',
+              overflow: 'hidden'
+            }}
+         >
+            {equipped.avatar}
+         </div>
+      </div>
+
+      <div className="rank-info">
+        <span className="rank-name">{player.username}</span>
+      </div>
+      <div className="rank-score">
+        {player.score} <small>XP</small>
+      </div>
+    </div>
+  );
+};
+// --------------------------------------------------------------------------
+
 function Leaderboard() {
   const [activeTab, setActiveTab] = useState('hiragana'); 
   const [scores, setScores] = useState([]);
@@ -11,8 +82,6 @@ function Leaderboard() {
     setLoading(true);
     const db = getDatabase();
     
-    // อ้างอิงไปที่ path: scores/hiragana (หรือหมวดอื่นๆ)
-    // ดึงมา 10 อันดับเหมือนเดิม (เผื่อไว้) แล้วค่อยมาตัดหน้าจอเอา
     const scoreRef = query(ref(db, `scores/${activeTab}`), orderByChild('score'), limitToLast(10));
 
     const unsubscribe = onValue(scoreRef, (snapshot) => {
@@ -59,22 +128,9 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          /* ✅ แก้ไขตรงนี้: เพิ่ม .slice(0, 3) เพื่อตัดให้เหลือแค่ 3 อันดับแรก */
+          // ✅ เปลี่ยนไปใช้ Component ย่อยที่สร้างไว้ด้านบน
           scores.slice(0, 3).map((player, index) => (
-            <div key={index} className={`rank-item rank-${index + 1}`}>
-              <div className="rank-number">
-                {index === 0 && '🥇'}
-                {index === 1 && '🥈'}
-                {index === 2 && '🥉'}
-                {/* เงื่อนไข index > 2 ไม่จำเป็นต้องมีแล้วเพราะเราตัดแค่ 3 คน */}
-              </div>
-              <div className="rank-info">
-                <span className="rank-name">{player.username}</span>
-              </div>
-              <div className="rank-score">
-                {player.score} <small>XP</small>
-              </div>
-            </div>
+            <LeaderboardItem key={index} player={player} rank={index + 1} />
           ))
         )}
       </div>

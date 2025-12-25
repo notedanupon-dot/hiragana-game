@@ -766,3 +766,97 @@ header h1 {
   border-radius: 5px;
   /* transition ย้ายไปใส่ inline style ใน js เพื่อความลื่นไหล */
 }
+
+/* =========================================
+   🏆 Leaderboard & Rank Item Styling
+   ========================================= */
+
+/* กล่องรวมของแต่ละอันดับ */
+.rank-item {
+  display: flex;            /* ✅ จัดเรียงแนวนอน (ซ้ายไปขวา) */
+  align-items: center;      /* ✅ จัดให้อยู่กึ่งกลางแนวตั้ง */
+  justify-content: flex-start; 
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #eef2f5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
+.rank-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  border-color: #ffd700; /* สีทองอ่อนๆ ตอนชี้ */
+}
+
+/* 1. ส่วนตัวเลขลำดับ (1, 2, 3...) */
+.rank-number {
+  width: 35px;            /* ความกว้างคงที่ ตัวเลขจะได้ตรงกัน */
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-right: 8px;
+  flex-shrink: 0;         /* ห้ามหด */
+}
+
+/* 2. ส่วนกล่องรูป Avatar (ที่เพิ่มมาใหม่) */
+.rank-avatar-container {
+  /* ขนาดถูกกำหนดไว้ใน inline-style ของ js แล้ว แต่ใส่ตรงนี้เพื่อความชัวร์ */
+  margin-right: 12px !important; 
+  flex-shrink: 0;         /* ห้ามหด */
+}
+
+/* 3. ส่วนชื่อผู้เล่น */
+.rank-info {
+  flex-grow: 1;           /* ✅ ยืดให้เต็มพื้นที่ที่เหลือ (ดันคะแนนไปขวาสุด) */
+  text-align: left;
+  overflow: hidden;       /* ป้องกันชื่อยาวเกิน */
+}
+
+.rank-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* ถ้าชื่อยาวไปให้ขึ้น ... */
+  display: block;
+}
+
+/* 4. ส่วนคะแนน */
+.rank-score {
+  font-weight: 800;
+  color: #2c3e50;
+  min-width: 60px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rank-score small {
+  font-size: 0.75em;
+  color: #888;
+  margin-left: 3px;
+  font-weight: normal;
+}
+
+/* --- ตกแต่งพิเศษสำหรับ Top 3 --- */
+
+/* อันดับ 1 */
+.rank-1 {
+  border: 2px solid #FFD700; /* ขอบสีทอง */
+  background: linear-gradient(to right, #fff, #fffbf0);
+}
+.rank-1 .rank-number { font-size: 24px; }
+
+/* อันดับ 2 */
+.rank-2 {
+  border: 2px solid #C0C0C0; /* ขอบสีเงิน */
+}
+
+/* อันดับ 3 */
+.rank-3 {
+  border: 2px solid #CD7F32; /* ขอบสีทองแดง */
+}
