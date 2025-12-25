@@ -959,3 +959,61 @@ header h1 {
     font-size: 14px;
   }
 }
+
+/* ปุ่มเลือกระดับความยาก */
+.diff-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: left;
+  border: 2px solid transparent;
+}
+
+.diff-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.diff-btn.normal:hover { border-color: #4CAF50; background: #f1f8e9; }
+.diff-btn.hard:hover { border-color: #FF9800; background: #fff3e0; }
+.diff-btn.master:hover { border-color: #F44336; background: #ffebee; }
+
+/* กล่องจับเวลา */
+.timer-box {
+  background: #333;
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 18px;
+}
+.timer-box.danger {
+  background: #d32f2f; /* สีแดงเมื่อใกล้หมดเวลา */
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.restart-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background: white;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
