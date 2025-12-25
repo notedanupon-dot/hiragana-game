@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, runTransaction } from 'firebase/database'; // ✅ เพิ่ม import Firebase
+import { getDatabase, ref, runTransaction } from 'firebase/database';
 import Game from '../components/Game';
 import Profile from '../components/Profile';
-import Shop from '../pages/Shop'; // ✅ ถูกต้อง (ถอยออกมา 1 ชั้น แล้วเข้า pages)
+import Shop from '../pages/Shop'; 
 import { hiraganaData } from '../data/hiragana';
 import '../App.css'; 
 
-// ✅ แก้ไข 1: รับ prop { username } เข้ามาตรงนี้
 const HiraganaGame = ({ username }) => {
-  // ✅ เพิ่ม 'shop' เข้าไปใน state view
   const [view, setView] = useState('menu'); 
   const [useInputMode, setUseInputMode] = useState(false); 
   const [userStats, setUserStats] = useState({ history: [] });
@@ -23,7 +21,6 @@ const HiraganaGame = ({ username }) => {
   const handleEnd = (result) => {
     console.log("Game Ended", result);
 
-    // --- ส่วนบันทึก LocalStorage เดิม ---
     const newHistoryItem = {
       date: new Date().toLocaleDateString('en-GB'),
       score: result.score
@@ -37,15 +34,11 @@ const HiraganaGame = ({ username }) => {
     setUserStats(newStats);
     localStorage.setItem('hiraganaStats', JSON.stringify(newStats));
 
-    // ✅ 4. เพิ่มระบบแจกเงิน (Coins) เข้า Firebase เมื่อเล่นจบ
-    // (เฉพาะ user ที่ไม่ใช่ Guest)
     if (username && username !== "Guest") {
       const db = getDatabase();
       const userRef = ref(db, `users/${username}/coins`);
       
-      // ใช้ Transaction เพื่อบวกเงินเพิ่มจากที่มีอยู่เดิม
       runTransaction(userRef, (currentCoins) => {
-        // ให้เงินเท่ากับคะแนนที่ทำได้
         return (currentCoins || 0) + result.score; 
       }).then(() => {
         console.log(`Added ${result.score} coins to ${username}`);
@@ -63,6 +56,31 @@ const HiraganaGame = ({ username }) => {
       {/* --- MENU --- */}
       {view === 'menu' && (
         <div className="menu-screen">
+          
+          {/* ✅ ย้ายปุ่มร้านค้ามาไว้ด้านบน (Toolbar) */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+            <button 
+              className="shop-btn-top"
+              style={{ 
+                background: '#FFD700', 
+                color: '#333',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              }} 
+              onClick={() => setView('shop')}
+            >
+              🛒 ร้านค้า & แต่งตัว
+            </button>
+          </div>
+
           <h1>Hiragana Practice</h1>
           
           <div className="mode-selector" style={{ marginBottom: '20px' }}>
@@ -89,27 +107,7 @@ const HiraganaGame = ({ username }) => {
             📊 ดูสถิติพัฒนาการ
           </button>
 
-          {/* ✅ 5. ปุ่มเข้าสู่ร้านค้า (Shop) */}
-          <button 
-            className="shop-btn"
-            style={{ 
-              marginTop: '10px', 
-              background: '#FFD700', 
-              color: '#333',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '20px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'block',
-              marginLeft: 'auto',
-              marginRight: 'auto'
-            }} 
-            onClick={() => setView('shop')}
-          >
-            🛒 ร้านค้า & แต่งตัว
-          </button>
+          {/* ❌ ลบปุ่มร้านค้าด้านล่างออกแล้ว */}
         </div>
       )}
 
@@ -117,10 +115,7 @@ const HiraganaGame = ({ username }) => {
       {view === 'game' && (
         <Game 
           dataset={hiraganaData} 
-          
-          // ✅ แก้ไข 2: ใช้ตัวแปร username ที่รับมาจาก App.js (ถ้าไม่มีให้ใช้ Guest)
           username={username || "Guest"} 
-          
           category="hiragana"
           onEnd={handleEnd} 
           onCancel={() => setView('menu')}
@@ -132,15 +127,12 @@ const HiraganaGame = ({ username }) => {
       {view === 'profile' && (
         <Profile 
            history={userStats.history} 
-           
-           // ✅ แก้ไข 3: ส่ง username ไปโชว์ในกราฟด้วย
            username={username || "Guest Player"} 
-           
            onBack={() => setView('menu')} 
         />
       )}
 
-      {/* --- ✅ เพิ่มหน้า SHOP --- */}
+      {/* --- SHOP --- */}
       {view === 'shop' && (
         <Shop 
           username={username || "Guest"} 
