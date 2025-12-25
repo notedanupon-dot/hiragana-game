@@ -22,9 +22,9 @@ export const shopItems = [
   { id: 'fr_001', name: 'กรอบไม้', type: 'frame', price: 50, value: 'solid 4px #8B4513' },
   { id: 'fr_002', name: 'กรอบทอง', type: 'frame', price: 500, value: 'solid 4px #FFD700' },
   { id: 'fr_003', name: 'กรอบเงิน', type: 'frame', price: 300, value: 'solid 4px #C0C0C0' },
-  { id: 'fr_004', name: 'กรอบนีออน', type: 'frame', price: 600, value: 'solid 4px #00FF00; box-shadow: 0 0 10px #00FF00' },
+  { id: 'frame_neon', name: 'กรอบนีออน', type: 'frame', price: 600, value: 'neon' },
   { id: 'fr_005', name: 'กรอบไฟ', type: 'frame', price: 800, value: 'dashed 4px #FF4500' },
-  { id: 'fr_006', name: 'กรอบสายรุ้ง', type: 'frame', price: 1200, value: 'double 6px transparent; background-image: linear-gradient(white, white), radial-gradient(circle at top left, #f00,#3020ff); background-origin: border-box; background-clip: content-box, border-box;' },
+  { id: 'frame_rainbow', name: 'กรอบสายรุ้ง', type: 'frame', price: 1200, value: 'rainbow' },
 
   // --- หมวด Backgrounds (สีพื้นหลังการ์ด) ---
   { id: 'bg_001', name: 'สีฟ้าใส', type: 'bg', price: 50, value: '#E0F7FA' },
