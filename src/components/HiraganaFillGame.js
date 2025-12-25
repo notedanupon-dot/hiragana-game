@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDatabase, ref, runTransaction } from 'firebase/database';
+import DrawModal from './DrawModal'; // ✅ Import เข้ามา
 import '../App.css';
 
+// ... (CHART_DATA คงเดิม) ...
 const CHART_DATA = [
+    // ... (ข้อมูลเดิมทั้งหมด) ...
+    // หากไม่มีให้ copy จากไฟล์เดิมมาใส่ครับ หรือใช้ตัวแปรเดิม
   { row: '', chars: [{ char: 'あ', romaji: 'a' }, { char: 'い', romaji: 'i' }, { char: 'う', romaji: 'u' }, { char: 'え', romaji: 'e' }, { char: 'お', romaji: 'o' }] },
   { row: 'K', chars: [{ char: 'か', romaji: 'ka' }, { char: 'き', romaji: 'ki' }, { char: 'く', romaji: 'ku' }, { char: 'け', romaji: 'ke' }, { char: 'こ', romaji: 'ko' }] },
   { row: 'S', chars: [{ char: 'さ', romaji: 'sa' }, { char: 'し', romaji: 'shi' }, { char: 'す', romaji: 'su' }, { char: 'せ', romaji: 'se' }, { char: 'そ', romaji: 'so' }] },
@@ -16,18 +20,22 @@ const CHART_DATA = [
   { row: 'N', chars: [{ char: 'ん', romaji: 'n' }, { char: null, romaji: '' }, { char: null, romaji: '' }, { char: null, romaji: '' }, { char: null, romaji: '' }] }
 ];
 
+
 const HiraganaFillGame = ({ username, onBack }) => {
-  const [difficulty, setDifficulty] = useState(null); // null = ยังไม่เลือก, 'normal', 'hard', 'master'
+  const [difficulty, setDifficulty] = useState(null);
   const [gridState, setGridState] = useState([]);
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState(0);
   
+  // State สำหรับโหมดวาดเขียน
+  const [isDrawMode, setIsDrawMode] = useState(false); // ✅ Toggle ระหว่าง พิมพ์ / วาด
+  const [activeCell, setActiveCell] = useState(null); // ✅ เก็บ cell ที่กำลังวาดอยู่
+
   // Timer State
   const [timeLeft, setTimeLeft] = useState(0); 
   const [gameActive, setGameActive] = useState(false);
   const timerRef = useRef(null);
 
-  // เริ่มเกมเมื่อมีการเปลี่ยนระดับความยาก
   useEffect(() => {
     if (difficulty) {
       initGame(difficulty);
@@ -35,50 +43,42 @@ const HiraganaFillGame = ({ username, onBack }) => {
     return () => clearInterval(timerRef.current);
   }, [difficulty]);
 
-  // Logic ของ Timer
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && gameActive) {
-      // เวลาหมด!
       clearInterval(timerRef.current);
       setGameActive(false);
-      alert("⏰ หมดเวลา! พยายามใหม่อีกครั้งนะครับ");
-      setDifficulty(null); // กลับไปหน้าเลือกความยาก
+      alert("⏰ หมดเวลา!");
+      setDifficulty(null);
     }
     return () => clearInterval(timerRef.current);
   }, [gameActive, timeLeft]);
 
   const initGame = (selectedDiff) => {
     let initialGrid = [];
-    
-    // ตั้งเวลาตามความยาก (วินาที)
-    let timeLimit = 300; // 5 นาทีสำหรับ Normal
-    if (selectedDiff === 'hard') timeLimit = 240; // 4 นาที
-    if (selectedDiff === 'master') timeLimit = 180; // 3 นาทีโหดๆ
+    let timeLimit = 300; 
+    if (selectedDiff === 'hard') timeLimit = 240; 
+    if (selectedDiff === 'master') timeLimit = 180; 
 
     setTimeLeft(timeLimit);
     setGameActive(true);
 
-    CHART_DATA.forEach((row) => {
+    CHART_DATA.forEach((row, rIndex) => {
       let rowData = [];
-      row.chars.forEach((item) => {
+      row.chars.forEach((item, cIndex) => {
         if (!item.char) {
           rowData.push({ ...item, type: 'empty' });
         } else {
-          // Logic ความยากในการซ่อนตัวอักษร
           let isHidden = false;
-          
-          if (selectedDiff === 'normal') {
-            isHidden = Math.random() < 0.5; // สุ่มหาย 50%
-          } else {
-            isHidden = true; // Hard & Master: หายหมด 100% (ตารางเปล่า)
-          }
+          if (selectedDiff === 'normal') isHidden = Math.random() < 0.5;
+          else isHidden = true;
 
           rowData.push({
             ...item,
+            rIndex, cIndex, // เก็บพิกัดไว้ใช้อ้างอิงตอนวาด
             isHidden: isHidden,
             isCorrect: !isHidden, 
             userInput: ''
@@ -94,19 +94,16 @@ const HiraganaFillGame = ({ username, onBack }) => {
   };
 
   const handleInputChange = (rowIndex, colIndex, value) => {
-    if (!gameActive) return; // ถ้าเกมจบแล้วห้ามพิมพ์
+    if (!gameActive) return;
 
     const newGrid = [...gridState];
     const cell = newGrid[rowIndex][colIndex];
-    
     cell.userInput = value;
 
     if (value.toLowerCase() === cell.romaji) {
       cell.isCorrect = true;
       cell.isHidden = false;
       setScore(prev => prev + 10);
-      
-      // Bonus Time: ตอบถูกได้เวลาเพิ่มนิดหน่อย
       if (difficulty !== 'normal') setTimeLeft(prev => prev + 2);
     }
 
@@ -114,11 +111,30 @@ const HiraganaFillGame = ({ username, onBack }) => {
     checkCompletion(newGrid);
   };
 
+  // ✅ ฟังก์ชันเมื่อวาดถูกต้อง (Self-Check Passed)
+  const handleDrawSuccess = () => {
+    if (!activeCell) return;
+    const { rIndex, cIndex } = activeCell;
+    
+    const newGrid = [...gridState];
+    const cell = newGrid[rIndex][cIndex];
+
+    cell.isCorrect = true;
+    cell.isHidden = false;
+    cell.userInput = '✏️'; // ใส่สัญลักษณ์ว่ามาจากการวาด
+
+    setScore(prev => prev + 10);
+    if (difficulty !== 'normal') setTimeLeft(prev => prev + 2);
+    
+    setGridState(newGrid);
+    setActiveCell(null); // ปิด Modal
+    checkCompletion(newGrid);
+  };
+
   const checkCompletion = (currentGrid) => {
     const allCorrect = currentGrid.every(row => 
       row.every(cell => cell.type === 'empty' || cell.isCorrect)
     );
-
     if (allCorrect && !completed) {
       setCompleted(true);
       setGameActive(false);
@@ -131,69 +147,63 @@ const HiraganaFillGame = ({ username, onBack }) => {
     if (username && username !== "Guest") {
       const db = getDatabase();
       const userRef = ref(db, `users/${username}/coins`);
-      
-      // คำนวณโบนัสตามความยาก
       let bonus = 100;
       if (difficulty === 'hard') bonus = 300;
       if (difficulty === 'master') bonus = 500;
 
-      runTransaction(userRef, (currentCoins) => {
-        return (currentCoins || 0) + bonus;
-      }).then(() => {
-        console.log(`Coins added! Bonus: ${bonus}`);
-      });
+      runTransaction(userRef, (currentCoins) => (currentCoins || 0) + bonus);
     }
   };
 
-  // --- UI หน้าเลือกความยาก ---
   if (!difficulty) {
     return (
       <div className="game-container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-        <button onClick={onBack} className="back-btn">⬅ กลับ</button>
-        <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>เลือกความท้าทาย 🔥</h2>
-        
+         <button onClick={onBack} className="back-btn">⬅ เมนูหลัก</button>
+         {/* ... (Code หน้าเลือกความยากเหมือนเดิม) ... */}
+         <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>เลือกความท้าทาย 🔥</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <button className="diff-btn normal" onClick={() => setDifficulty('normal')}>
-            <span style={{fontSize:'24px'}}>😊</span>
-            <div>
-              <strong>Normal (ทั่วไป)</strong><br/>
-              <small>ตัวอักษรหายไป 50% / มีหัวตารางบอกใบ้</small>
-            </div>
-          </button>
-
-          <button className="diff-btn hard" onClick={() => setDifficulty('hard')}>
-            <span style={{fontSize:'24px'}}>🔥</span>
-            <div>
-              <strong>Hard (ยาก)</strong><br/>
-              <small>ตารางเปล่า (หาย 100%) / มีหัวตารางบอกใบ้ / 💰x3</small>
-            </div>
-          </button>
-
-          <button className="diff-btn master" onClick={() => setDifficulty('master')}>
-            <span style={{fontSize:'24px'}}>👹</span>
-            <div>
-              <strong>Master (ปีศาจ)</strong><br/>
-              <small>ตารางเปล่า + 🚫 ไม่มีหัวตารางบอกใบ้! / 💰x5</small>
-            </div>
-          </button>
+          {['normal', 'hard', 'master'].map(diff => (
+            <button key={diff} className={`diff-btn ${diff}`} onClick={() => setDifficulty(diff)}>
+              <span style={{fontSize:'24px'}}>{diff === 'normal' ? '😊' : diff === 'hard' ? '🔥' : '👹'}</span>
+              <div style={{textTransform: 'capitalize'}}><strong>{diff}</strong></div>
+            </button>
+          ))}
         </div>
       </div>
     );
   }
 
-  // --- UI หน้าเล่นเกม ---
   return (
     <div className="game-container" style={{ maxWidth: '850px' }}>
-      <div className="header-nav" style={{justifyContent: 'space-between', alignItems: 'center'}}>
-        <button onClick={() => setDifficulty(null)} className="back-btn" style={{fontSize: '14px'}}>
-           ❌ เลิกเล่น
-        </button>
+      
+      {/* ✅ Modal วาดเขียน */}
+      {activeCell && (
+        <DrawModal 
+          targetChar={activeCell.char}
+          targetRomaji={activeCell.romaji}
+          onClose={() => setActiveCell(null)}
+          onCorrect={handleDrawSuccess}
+        />
+      )}
+
+      <div className="header-nav" style={{justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px'}}>
+        <button onClick={() => setDifficulty(null)} className="back-btn" style={{fontSize: '14px'}}>❌ เลิกเล่น</button>
         
-        <div style={{textAlign: 'center'}}>
-           <div style={{ fontSize: '14px', color: '#888' }}>
-             โหมด: {difficulty === 'normal' ? 'Normal' : difficulty === 'hard' ? 'Hard 🔥' : 'Master 👹'}
-           </div>
-           <h2 style={{margin: '5px 0'}}>Fill the Chart</h2>
+        {/* ✅ Toggle Draw Mode */}
+        <div 
+          onClick={() => setIsDrawMode(!isDrawMode)}
+          style={{
+            cursor: 'pointer',
+            padding: '8px 15px',
+            background: isDrawMode ? '#E91E63' : '#ddd',
+            color: isDrawMode ? 'white' : '#333',
+            borderRadius: '20px',
+            fontWeight: 'bold',
+            display: 'flex', alignItems: 'center', gap: '5px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+          }}
+        >
+          {isDrawMode ? '✏️ โหมดวาด (แตะเพื่อเปลี่ยน)' : '⌨️ โหมดพิมพ์ (แตะเพื่อเปลี่ยน)'}
         </div>
 
         <div className={`timer-box ${timeLeft < 30 ? 'danger' : ''}`}>
@@ -201,59 +211,46 @@ const HiraganaFillGame = ({ username, onBack }) => {
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-        คะแนน: <strong>{score}</strong>
-      </div>
-
-      {completed && (
-        <div className="victory-banner">
-          <h3>🎉 สุดยอด! คุณคือผู้พิชิตระดับ {difficulty.toUpperCase()}</h3>
-          <p>ได้รับรางวัลมหาศาล! 💰</p>
-          <button onClick={() => setDifficulty(null)} className="restart-btn">
-            🔄 เล่นใหม่ / เปลี่ยนระดับ
-          </button>
-        </div>
-      )}
-
-      {/* --- GRID TABLE --- */}
-      <div className="hiragana-grid">
-        
-        {/* Header Row (A I U E O) - ซ่อนถ้าเป็นโหมด Master */}
+      <div className="hiragana-grid" style={{marginTop: '20px'}}>
         <div className="grid-header"></div>
         {['a', 'i', 'u', 'e', 'o'].map((h, i) => (
-          <div key={i} className="grid-header">
-            {difficulty === 'master' ? '?' : h}
-          </div>
+          <div key={i} className="grid-header">{difficulty === 'master' ? '?' : h}</div>
         ))}
 
         {gridState.map((row, rIndex) => (
           <React.Fragment key={rIndex}>
-            {/* Row Label (K, S, T...) - ซ่อนถ้าเป็นโหมด Master */}
-            <div className="row-label">
-              {difficulty === 'master' ? '?' : CHART_DATA[rIndex].row}
-            </div>
+            <div className="row-label">{difficulty === 'master' ? '?' : CHART_DATA[rIndex].row}</div>
             
             {row.map((cell, cIndex) => {
-              if (cell.type === 'empty') {
-                return <div key={cIndex} className="grid-cell empty"></div>;
-              }
+              if (cell.type === 'empty') return <div key={cIndex} className="grid-cell empty"></div>;
 
               return (
                 <div 
                   key={cIndex} 
                   className={`grid-cell ${cell.isCorrect ? 'correct' : 'pending'}`}
+                  // ✅ ถ้าเป็นโหมดวาด และยังไม่ถูก ให้คลิกเปิด Modal
+                  onClick={() => {
+                    if (isDrawMode && cell.isHidden && gameActive) {
+                      setActiveCell(cell);
+                    }
+                  }}
+                  style={{ cursor: (isDrawMode && cell.isHidden) ? 'pointer' : 'default' }}
                 >
                   {cell.isHidden ? (
-                    <input
-                      type="text"
-                      maxLength={3}
-                      className="grid-input"
-                      // ปิด hint placeholder ในโหมด hard/master เพื่อความยาก
-                      placeholder={difficulty === 'normal' ? "?" : ""} 
-                      value={cell.userInput}
-                      onChange={(e) => handleInputChange(rIndex, cIndex, e.target.value)}
-                      disabled={completed || !gameActive}
-                    />
+                    isDrawMode ? (
+                       // ✅ แสดงไอคอนดินสอถ้าอยู่ในโหมดวาด
+                       <span style={{fontSize: '20px', opacity: 0.5}}>✏️</span>
+                    ) : (
+                      <input
+                        type="text"
+                        maxLength={3}
+                        className="grid-input"
+                        placeholder={difficulty === 'normal' ? "?" : ""} 
+                        value={cell.userInput}
+                        onChange={(e) => handleInputChange(rIndex, cIndex, e.target.value)}
+                        disabled={completed || !gameActive}
+                      />
+                    )
                   ) : (
                     <span className="grid-char">{cell.char}</span>
                   )}
