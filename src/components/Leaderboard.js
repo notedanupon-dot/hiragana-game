@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, query, orderByChild, limitToLast, onValue } from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import '../App.css';
 
-// --- ✅ สร้าง Component ย่อยสำหรับแสดงแต่ละแถว (เพื่อดึงรูป Avatar แยกรายคน) ---
+// --- ✅ Component ย่อยสำหรับแสดงแต่ละแถว (คงเดิม) ---
 const LeaderboardItem = ({ player, rank }) => {
   const [equipped, setEquipped] = useState({ avatar: '👤', frame: 'none', bg: '#fff' });
 
   useEffect(() => {
-    // ถ้าเป็น Guest ไม่ต้องไปดึงข้อมูล
     if (player.username === 'Guest') return;
 
     const db = getDatabase();
-    // ดึงข้อมูลการแต่งตัวของ user คนนี้
     const userRef = ref(db, `users/${player.username}/equipped`);
 
     const unsubscribe = onValue(userRef, (snapshot) => {
@@ -30,11 +28,11 @@ const LeaderboardItem = ({ player, rank }) => {
         {rank === 1 && '🥇'}
         {rank === 2 && '🥈'}
         {rank === 3 && '🥉'}
+        {rank > 3 && `${rank}.`}
       </div>
 
       {/* ✅ ส่วนแสดง Avatar และ Frame */}
       <div className="rank-avatar-container" style={{ position: 'relative', width: '45px', height: '45px', marginRight: '10px' }}>
-         {/* กรอบรูป (Frame) */}
          <div 
             style={{ 
                position: 'absolute', 
@@ -42,12 +40,11 @@ const LeaderboardItem = ({ player, rank }) => {
                width: '100%', height: '100%', 
                borderRadius: '50%', 
                border: equipped.frame === 'none' ? '2px solid #ddd' : equipped.frame,
-               pointerEvents: 'none', // ให้คลิกทะลุได้
+               pointerEvents: 'none',
                zIndex: 2
             }}
          ></div>
 
-         {/* พื้นหลัง (BG) และ ตัวไอคอน (Avatar) */}
          <div 
             style={{
               width: '100%', height: '100%',
@@ -71,6 +68,7 @@ const LeaderboardItem = ({ player, rank }) => {
     </div>
   );
 };
+
 // --------------------------------------------------------------------------
 
 function Leaderboard() {
@@ -82,21 +80,43 @@ function Leaderboard() {
     setLoading(true);
     const db = getDatabase();
     
-    const scoreRef = query(ref(db, `scores/${activeTab}`), orderByChild('score'), limitToLast(10));
+    // ⚠️ แก้ไข: ดึงข้อมูลทั้งหมดใน path มาประมวลผล (เอา limitToLast ออกเพื่อให้กรองชื่อซ้ำได้ถูกต้อง)
+    const scoreRef = ref(db, `scores/${activeTab}`);
 
     const unsubscribe = onValue(scoreRef, (snapshot) => {
       const data = snapshot.val();
-      const sortedScores = [];
-
+      
       if (data) {
-        Object.keys(data).forEach(key => {
-          sortedScores.push(data[key]);
+        const userMap = {};
+
+        // 1. วนลูปข้อมูลทั้งหมดเพื่อหา Max Score ของแต่ละคน
+        Object.values(data).forEach((entry) => {
+          const name = entry.username || "Unknown";
+          const score = parseInt(entry.score || 0);
+
+          if (userMap[name]) {
+            // ถ้ามีชื่อนี้แล้ว ให้เช็คว่าคะแนนใหม่เยอะกว่าคะแนนเก่าไหม ถ้าใช่ให้อัปเดต
+            if (score > userMap[name].score) {
+                userMap[name] = { ...entry, score: score };
+            }
+          } else {
+            // ถ้ายังไม่มีชื่อนี้ ให้เพิ่มเข้าไปเลย
+            userMap[name] = { ...entry, score: score };
+          }
         });
-        // เรียงคะแนนจาก มาก -> น้อย
+
+        // 2. แปลง Object กลับเป็น Array
+        const sortedScores = Object.values(userMap);
+
+        // 3. เรียงลำดับจาก มาก -> น้อย
         sortedScores.sort((a, b) => b.score - a.score);
+
+        // 4. ตัดมาแสดงแค่ Top 5 หรือ Top 10 ตามต้องการ (ในที่นี้เอามาทั้งหมด แล้วไป slice ตอน render)
+        setScores(sortedScores);
+      } else {
+        setScores([]);
       }
       
-      setScores(sortedScores);
       setLoading(false);
     }, (error) => {
       console.error("Error reading data:", error);
@@ -128,7 +148,7 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          // ✅ เปลี่ยนไปใช้ Component ย่อยที่สร้างไว้ด้านบน
+          // ✅ แสดงผลแค่ 3 อันดับแรก (หรือเปลี่ยนเลข 3 เป็น 5 ถ้าอยากได้ Top 5)
           scores.slice(0, 3).map((player, index) => (
             <LeaderboardItem key={index} player={player} rank={index + 1} />
           ))
