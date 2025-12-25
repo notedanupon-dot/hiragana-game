@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { katakanaData } from '../data/katakana';
 import Game from '../components/Game';
-import Profile from '../components/Profile'; // ✅ 1. นำเข้า Profile
+import Profile from '../components/Profile';
 import '../App.css'; 
 
 const KatakanaGame = ({ username }) => {
-  // ✅ 2. เปลี่ยน State เป็น view เพื่อคุมการสลับหน้า (menu, game, profile)
   const [view, setView] = useState('menu'); 
-  
-  // State สำหรับโหมดพิมพ์
   const [useInputMode, setUseInputMode] = useState(false);
-
-  // ✅ 3. State สำหรับเก็บประวัติคะแนนของ Katakana
   const [userStats, setUserStats] = useState({ history: [] });
 
-  // กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร (กัน Error)
+  // กรองข้อมูล: เอาเฉพาะที่มีตัวอักษร
   const activeGameData = katakanaData.filter(item => item.character && item.character !== '');
 
-  // ✅ 4. โหลดข้อมูลเก่าจาก LocalStorage (ใช้ key ต่างกับ Hiragana)
+  // โหลดข้อมูลเก่าจาก LocalStorage (ใช้ key 'katakanaStats')
   useEffect(() => {
     const savedStats = localStorage.getItem('katakanaStats');
     if (savedStats) {
@@ -25,12 +20,12 @@ const KatakanaGame = ({ username }) => {
     }
   }, []);
 
-  // ✅ 5. ฟังก์ชันเมื่อจบเกม (บันทึกคะแนนลงเครื่อง)
+  // ฟังก์ชันเมื่อจบเกม
   const handleEnd = (result) => {
     console.log("Game Ended", result);
 
     const newHistoryItem = {
-      date: new Date().toLocaleDateString('en-GB'), // เก็บวันที่แบบ วัน/เดือน/ปี
+      date: new Date().toLocaleDateString('en-GB'),
       score: result.score
     };
 
@@ -39,22 +34,21 @@ const KatakanaGame = ({ username }) => {
       history: [...userStats.history, newHistoryItem]
     };
 
-    // บันทึกลง LocalStorage ในชื่อ 'katakanaStats'
+    // บันทึกลง LocalStorage
     setUserStats(newStats);
     localStorage.setItem('katakanaStats', JSON.stringify(newStats));
 
-    setView('menu'); // กลับไปหน้าเมนู
+    setView('menu'); 
   };
 
   return (
     <div className="game-container">
       
-      {/* --- กรณีอยู่ที่หน้า MENU --- */}
+      {/* --- MENU SCREEN --- */}
       {view === 'menu' && (
         <div className="menu-screen">
           <h1>Katakana Mastery <span className="jp-font">カタカナ</span></h1>
           
-          {/* ตัวเลือกเปิด/ปิด โหมดพิมพ์ */}
           <div className="mode-selector" style={{ marginBottom: '20px' }}>
             <label style={{ fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <input 
@@ -71,7 +65,6 @@ const KatakanaGame = ({ username }) => {
             เริ่มเกม 🚀
           </button>
 
-          {/* ✅ ปุ่มกดดู Profile */}
           <button 
             className="text-btn" 
             style={{ marginTop: '15px', fontSize: '16px', color: '#555' }}
@@ -82,11 +75,11 @@ const KatakanaGame = ({ username }) => {
         </div>
       )}
 
-      {/* --- กรณีอยู่ที่หน้า GAME --- */}
+      {/* --- GAME SCREEN --- */}
       {view === 'game' && (
         <Game 
           dataset={activeGameData} 
-          username={username || "Guest"} 
+          username={username || "Guest"} // ส่งชื่อผู้เล่นไปที่เกม
           category="katakana"
           onEnd={handleEnd} 
           onCancel={() => setView('menu')}
@@ -94,11 +87,11 @@ const KatakanaGame = ({ username }) => {
         />
       )}
 
-      {/* --- กรณีอยู่ที่หน้า PROFILE --- */}
+      {/* --- PROFILE SCREEN --- */}
       {view === 'profile' && (
         <Profile 
            history={userStats.history} 
-           username={username || "Guest Player"} 
+           username={username || "Guest Player"} // ส่งชื่อผู้เล่นไปที่กราฟ
            onBack={() => setView('menu')} 
         />
       )}

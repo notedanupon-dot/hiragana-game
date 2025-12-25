@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Game from '../components/Game';
-import Profile from '../components/Profile'; // ✅ 1. นำเข้า Profile
+import Profile from '../components/Profile';
 import { hiraganaData } from '../data/hiragana';
 import '../App.css'; 
 
-const HiraganaGame = () => {
-  // ✅ 2. เปลี่ยน State จาก isPlaying เป็น view เพื่อคุมการสลับหน้า (menu, game, profile)
+// ✅ แก้ไข 1: รับ prop { username } เข้ามาตรงนี้
+const HiraganaGame = ({ username }) => {
   const [view, setView] = useState('menu'); 
-  
-  // State สำหรับโหมดพิมพ์ (เหมือนเดิม)
   const [useInputMode, setUseInputMode] = useState(false); 
-  
-  // ✅ 3. State สำหรับเก็บประวัติคะแนน (เพื่อส่งให้กราฟ)
   const [userStats, setUserStats] = useState({ history: [] });
 
-  // ✅ 4. โหลดข้อมูลเก่าจาก LocalStorage เมื่อเปิดหน้านี้
   useEffect(() => {
     const savedStats = localStorage.getItem('hiraganaStats');
     if (savedStats) {
@@ -22,13 +17,11 @@ const HiraganaGame = () => {
     }
   }, []);
 
-  // ✅ 5. ฟังก์ชันเมื่อจบเกม (บันทึกคะแนนลงเครื่อง)
   const handleEnd = (result) => {
     console.log("Game Ended", result);
 
-    // สร้างข้อมูลประวัติใหม่
     const newHistoryItem = {
-      date: new Date().toLocaleDateString('en-GB'), // เก็บวันที่แบบ วัน/เดือน/ปี
+      date: new Date().toLocaleDateString('en-GB'),
       score: result.score
     };
 
@@ -37,22 +30,19 @@ const HiraganaGame = () => {
       history: [...userStats.history, newHistoryItem]
     };
 
-    // อัปเดต State และบันทึกลง LocalStorage
     setUserStats(newStats);
     localStorage.setItem('hiraganaStats', JSON.stringify(newStats));
-
-    setView('menu'); // กลับไปหน้าเมนู
+    setView('menu'); 
   };
 
   return (
     <div className="game-container">
       
-      {/* --- กรณีอยู่ที่หน้า MENU --- */}
+      {/* --- MENU --- */}
       {view === 'menu' && (
         <div className="menu-screen">
           <h1>Hiragana Practice</h1>
           
-          {/* ตัวเลือกเปิด/ปิด โหมดพิมพ์ */}
           <div className="mode-selector" style={{ marginBottom: '20px' }}>
             <label style={{ fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <input 
@@ -69,7 +59,6 @@ const HiraganaGame = () => {
             เริ่มเกม 🚀
           </button>
 
-          {/* ✅ ปุ่มกดดู Profile */}
           <button 
             className="text-btn" 
             style={{ marginTop: '15px', fontSize: '16px', color: '#555' }}
@@ -80,11 +69,14 @@ const HiraganaGame = () => {
         </div>
       )}
 
-      {/* --- กรณีอยู่ที่หน้า GAME --- */}
+      {/* --- GAME --- */}
       {view === 'game' && (
         <Game 
           dataset={hiraganaData} 
-          username="Guest" 
+          
+          // ✅ แก้ไข 2: ใช้ตัวแปร username ที่รับมาจาก App.js (ถ้าไม่มีให้ใช้ Guest)
+          username={username || "Guest"} 
+          
           category="hiragana"
           onEnd={handleEnd} 
           onCancel={() => setView('menu')}
@@ -92,11 +84,14 @@ const HiraganaGame = () => {
         />
       )}
 
-      {/* --- กรณีอยู่ที่หน้า PROFILE --- */}
+      {/* --- PROFILE --- */}
       {view === 'profile' && (
         <Profile 
            history={userStats.history} 
-           username="Guest Player" 
+           
+           // ✅ แก้ไข 3: ส่ง username ไปโชว์ในกราฟด้วย
+           username={username || "Guest Player"} 
+           
            onBack={() => setView('menu')} 
         />
       )}
