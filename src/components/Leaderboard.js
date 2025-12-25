@@ -5,7 +5,7 @@ import '../App.css';
 // ✅ ฟังก์ชันช่วยแปลงสไตล์กรอบรูป
 const getFrameStyle = (frameType) => {
   if (!frameType || frameType === 'none') {
-    return { border: '2px solid #ddd' }; // กรอบปกติใน Leaderboard
+    return { border: '2px solid #ddd' }; 
   }
 
   // 🌈 กรอบสายรุ้ง
@@ -28,7 +28,6 @@ const getFrameStyle = (frameType) => {
     };
   }
 
-  // กรอบสีปกติ
   return {
     border: frameType,
     borderRadius: '50%'
@@ -56,12 +55,15 @@ const LeaderboardItem = ({ player, rank }) => {
   }, [player.username]);
 
   return (
-    <div className={`rank-item rank-${rank}`}>
+    <div 
+      className={`rank-item rank-${rank}`}
+      // ✅ เพิ่ม Delay ให้เด้งขึ้นมาทีละลำดับ (สวยมาก!)
+      style={{ animationDelay: `${(rank - 1) * 0.15}s` }}
+    >
       <div className="rank-number">
         {rank === 1 && '🥇'}
         {rank === 2 && '🥈'}
         {rank === 3 && '🥉'}
-        {/* เนื่องจากแสดงแค่ 3 อันดับ จึงไม่ต้องมีเคส rank > 3 */}
       </div>
 
       {/* ส่วนแสดง Avatar และ Frame */}
@@ -112,9 +114,10 @@ function Leaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const db = getDatabase();
+    setLoading(true); // เริ่มโหลด ให้แสดงข้อความโหลดก่อน
+    setScores([]);    // เคลียร์ค่าเก่าก่อน เพื่อให้ Animation เริ่มใหม่ตอนเปลี่ยน Tab
     
+    const db = getDatabase();
     const scoreRef = ref(db, `scores/${activeTab}`);
 
     const unsubscribe = onValue(scoreRef, (snapshot) => {
@@ -123,12 +126,10 @@ function Leaderboard() {
       if (data) {
         const userMap = {};
 
-        // 1. วนลูปข้อมูลเพื่อหา Max Score และตัดชื่อซ้ำ
         Object.values(data).forEach((entry) => {
           const name = entry.username || "Unknown";
           const score = parseInt(entry.score || 0);
 
-          // Logic: เก็บเฉพาะคะแนนสูงสุดของชื่อนั้นๆ
           if (userMap[name]) {
             if (score > userMap[name].score) {
                 userMap[name] = { ...entry, score: score };
@@ -138,7 +139,6 @@ function Leaderboard() {
           }
         });
 
-        // 2. แปลงเป็น Array และเรียงลำดับจากมากไปน้อย
         const sortedScores = Object.values(userMap);
         sortedScores.sort((a, b) => b.score - a.score);
 
@@ -178,7 +178,7 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          // ✅ จุดแก้ไข: slice(0, 3) เพื่อแสดงแค่ 3 อันดับแรก
+          // แสดงแค่ 3 อันดับแรก
           scores.slice(0, 3).map((player, index) => (
             <LeaderboardItem key={index} player={player} rank={index + 1} />
           ))

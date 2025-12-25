@@ -1065,3 +1065,71 @@ header h1 {
   color: #888;
   cursor: pointer;
 }
+
+/* --- 🎬 Animations Keyframes --- */
+
+/* 1. ท่าเปิดตัว: เด้งขึ้นมาจากด้านล่าง */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 2. แสงหายใจ (สำหรับอันดับ 1) */
+@keyframes glowGold {
+  0% { box-shadow: 0 0 5px gold; border-color: gold; }
+  50% { box-shadow: 0 0 20px gold, 0 0 10px orange; border-color: #ffd700; }
+  100% { box-shadow: 0 0 5px gold; border-color: gold; }
+}
+
+/* 3. ลอยตุ๊บป่อง (สำหรับ Avatar) */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0px); }
+}
+
+/* --- 🏆 Leaderboard Styles --- */
+
+.rank-item {
+  /* ค่าเริ่มต้น: ซ่อนก่อน แล้วค่อยเด้งมา */
+  opacity: 0; 
+  animation: slideUpFade 0.5s ease-out forwards;
+}
+
+/* 🥇 อันดับ 1: ทอง + แสงวิบวับ + พื้นหลังไล่สี */
+.rank-item.rank-1 {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+  border: 2px solid gold !important;
+  animation: slideUpFade 0.5s ease-out forwards, glowGold 2s infinite alternate; /* เล่น 2 animation พร้อมกัน */
+  z-index: 10;
+  transform: scale(1.02); /* ขยายใหญ่นิดนึงให้เด่น */
+}
+
+/* 🥈 อันดับ 2: เงิน */
+.rank-item.rank-2 {
+  border: 2px solid silver !important;
+  box-shadow: 0 0 10px rgba(192, 192, 192, 0.4);
+}
+
+/* 🥉 อันดับ 3: ทองแดง */
+.rank-item.rank-3 {
+  border: 2px solid #cd7f32 !important; /* สีทองแดง */
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.3);
+}
+
+/* ทำให้ Avatar ของ Top 3 ลอยได้ */
+.rank-item.rank-1 .rank-avatar-container,
+.rank-item.rank-2 .rank-avatar-container,
+.rank-item.rank-3 .rank-avatar-container {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* เพิ่ม Delay ให้รูปโปรไฟล์ของที่ 2 และ 3 ลอยสลับจังหวะกัน จะได้ดูธรรมชาติ */
+.rank-item.rank-2 .rank-avatar-container { animation-delay: 0.5s; }
+.rank-item.rank-3 .rank-avatar-container { animation-delay: 1s; }
