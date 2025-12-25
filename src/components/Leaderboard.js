@@ -62,7 +62,7 @@ const LeaderboardItem = ({ player, rank }) => {
         {rank === 1 && '🥇'}
         {rank === 2 && '🥈'}
         {rank === 3 && '🥉'}
-        {rank > 3 && `${rank}.`}
+        {/* {rank > 3 && `${rank}.`} */}
       </div>
 
       {/* ✅ ส่วนแสดง Avatar และ Frame */}
