@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import '../App.css';
 
-// ✅ 1. ฟังก์ชันช่วยแปลงสไตล์กรอบรูป (Copy มาจาก Shop เพื่อให้แสดงผลเหมือนกัน)
+// ✅ ฟังก์ชันช่วยแปลงสไตล์กรอบรูป
 const getFrameStyle = (frameType) => {
   if (!frameType || frameType === 'none') {
     return { border: '2px solid #ddd' }; // กรอบปกติใน Leaderboard
@@ -11,7 +11,7 @@ const getFrameStyle = (frameType) => {
   // 🌈 กรอบสายรุ้ง
   if (frameType === 'rainbow') {
     return {
-      border: '3px solid transparent', // ลดขนาดลงนิดหน่อยสำหรับ Leaderboard
+      border: '3px solid transparent',
       backgroundImage: 'linear-gradient(#fff, #fff), linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
       backgroundOrigin: 'border-box',
       backgroundClip: 'content-box, border-box',
@@ -23,7 +23,7 @@ const getFrameStyle = (frameType) => {
   if (frameType === 'neon') {
     return {
       border: '2px solid #fff',
-      boxShadow: '0 0 5px #FF00FF, 0 0 10px #FF00FF', // ลดแสงฟุ้งลงนิดหน่อยให้เหมาะกับขนาดเล็ก
+      boxShadow: '0 0 5px #FF00FF, 0 0 10px #FF00FF',
       borderRadius: '50%'
     };
   }
@@ -35,7 +35,7 @@ const getFrameStyle = (frameType) => {
   };
 };
 
-// --- ✅ Component ย่อยสำหรับแสดงแต่ละแถว ---
+// --- Component ย่อยสำหรับแสดงแต่ละแถว ---
 const LeaderboardItem = ({ player, rank }) => {
   const [equipped, setEquipped] = useState({ avatar: '👤', frame: 'none', bg: '#fff' });
 
@@ -43,7 +43,6 @@ const LeaderboardItem = ({ player, rank }) => {
     if (player.username === 'Guest') return;
 
     const db = getDatabase();
-    // ดึงข้อมูลการแต่งตัวของ user คนนี้
     const userRef = ref(db, `users/${player.username}/equipped`);
 
     const unsubscribe = onValue(userRef, (snapshot) => {
@@ -62,10 +61,10 @@ const LeaderboardItem = ({ player, rank }) => {
         {rank === 1 && '🥇'}
         {rank === 2 && '🥈'}
         {rank === 3 && '🥉'}
-        {/* {rank > 3 && `${rank}.`} */}
+        {/* เนื่องจากแสดงแค่ 3 อันดับ จึงไม่ต้องมีเคส rank > 3 */}
       </div>
 
-      {/* ✅ ส่วนแสดง Avatar และ Frame */}
+      {/* ส่วนแสดง Avatar และ Frame */}
       <div className="rank-avatar-container" style={{ position: 'relative', width: '45px', height: '45px', marginRight: '10px' }}>
          
          {/* Layer กรอบรูป */}
@@ -74,7 +73,6 @@ const LeaderboardItem = ({ player, rank }) => {
                position: 'absolute', 
                top: 0, left: 0, 
                width: '100%', height: '100%', 
-               // ✅ เรียกใช้ฟังก์ชัน getFrameStyle ตรงนี้
                ...getFrameStyle(equipped.frame), 
                pointerEvents: 'none',
                zIndex: 2
@@ -117,7 +115,6 @@ function Leaderboard() {
     setLoading(true);
     const db = getDatabase();
     
-    // ดึงข้อมูลทั้งหมดเพื่อนำมาหาคะแนนสูงสุด (Max Score)
     const scoreRef = ref(db, `scores/${activeTab}`);
 
     const unsubscribe = onValue(scoreRef, (snapshot) => {
@@ -131,6 +128,7 @@ function Leaderboard() {
           const name = entry.username || "Unknown";
           const score = parseInt(entry.score || 0);
 
+          // Logic: เก็บเฉพาะคะแนนสูงสุดของชื่อนั้นๆ
           if (userMap[name]) {
             if (score > userMap[name].score) {
                 userMap[name] = { ...entry, score: score };
@@ -140,7 +138,7 @@ function Leaderboard() {
           }
         });
 
-        // 2. แปลงเป็น Array และเรียงลำดับ
+        // 2. แปลงเป็น Array และเรียงลำดับจากมากไปน้อย
         const sortedScores = Object.values(userMap);
         sortedScores.sort((a, b) => b.score - a.score);
 
@@ -180,8 +178,8 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          // แสดงผล 5 อันดับแรก (ปรับเลข slice ได้ตามต้องการ)
-          scores.slice(0, 5).map((player, index) => (
+          // ✅ จุดแก้ไข: slice(0, 3) เพื่อแสดงแค่ 3 อันดับแรก
+          scores.slice(0, 3).map((player, index) => (
             <LeaderboardItem key={index} player={player} rank={index + 1} />
           ))
         )}
