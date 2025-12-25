@@ -5,18 +5,20 @@ const DrawModal = ({ targetChar, targetRomaji, onClose, onCorrect }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
 
-  // ตั้งค่า Canvas เมื่อเปิดขึ้นมา
+  // ตั้งค่า Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.width = 300;
       canvas.height = 300;
       const ctx = canvas.getContext('2d');
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 12; // เพิ่มความหนาเส้นปากกาให้เห็นชัดขึ้นเมื่อเทียบกับตัวเฉลย
       ctx.lineCap = 'round';
-      ctx.strokeStyle = '#333';
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#333'; // สีปากกา (ดำเข้ม)
+      
+      // ⚠️ สำคัญ: ไม่เทสีขาวพื้นหลัง เพื่อให้มองทะลุเห็นตัวเฉลยด้านหลังได้
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   }, []);
 
@@ -42,7 +44,6 @@ const DrawModal = ({ targetChar, targetRomaji, onClose, onCorrect }) => {
     setIsDrawing(false);
   };
 
-  // ฟังก์ชันแปลงพิกัด (รองรับทั้ง Mouse และ Touch)
   const getCoordinates = (event) => {
     if (event.touches && event.touches[0]) {
       const rect = canvasRef.current.getBoundingClientRect();
@@ -61,30 +62,56 @@ const DrawModal = ({ targetChar, targetRomaji, onClose, onCorrect }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>วาดตัวอักษร: <span style={{color: '#9C27B0'}}>{targetRomaji.toUpperCase()}</span></h3>
+        <h3>วาดตัวอักษร: <span style={{color: '#9C27B0', fontSize: '1.2em'}}>{targetRomaji.toUpperCase()}</span></h3>
         
-        <div style={{position: 'relative', width: '300px', height: '300px', margin: '0 auto', border: '2px solid #ccc', borderRadius: '10px', overflow: 'hidden'}}>
-          {/* เฉลย (ซ่อนอยู่หลัง Canvas) */}
+        {/* Container พื้นที่วาดรูป */}
+        <div style={{
+          position: 'relative', 
+          width: '300px', 
+          height: '300px', 
+          margin: '0 auto', 
+          border: '2px solid #ccc', 
+          borderRadius: '15px', 
+          background: 'white', // พื้นหลังสีขาวอยู่ที่ Container แทน Canvas
+          overflow: 'hidden',
+          boxShadow: 'inset 0 0 20px rgba(0,0,0,0.05)'
+        }}>
+          
+          {/* ✅ LAYER 1: เฉลย (อยู่ด้านหลัง) */}
           {showAnswer && (
             <div style={{
-              position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '200px', color: 'rgba(0, 255, 0, 0.3)', pointerEvents: 'none', userSelect: 'none'
+              position: 'absolute', 
+              top: 0, left: 0, 
+              width: '100%', height: '100%',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              fontSize: '220px', 
+              fontFamily: '"Noto Sans JP", "Hiragino Kaku Gothic Pro", sans-serif',
+              color: '#e0e0e0', // สีเทาจางๆ (เหมือนลายน้ำ/เส้นร่าง)
+              pointerEvents: 'none', // ให้คลิกทะลุไปวาดบน Canvas ได้
+              zIndex: 1, // อยู่ชั้นล่าง
+              userSelect: 'none'
             }}>
               {targetChar}
             </div>
           )}
           
+          {/* ✅ LAYER 2: เส้นที่วาด (อยู่ด้านหน้า) */}
           <canvas
             ref={canvasRef}
-            style={{ touchAction: 'none', background: 'transparent', position: 'relative', zIndex: 2 }}
+            style={{ 
+              position: 'absolute',
+              top: 0, left: 0,
+              touchAction: 'none', 
+              background: 'transparent', // พื้นหลังใส มองทะลุไปเห็นเฉลย
+              zIndex: 2 // อยู่ชั้นบน
+            }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
@@ -95,16 +122,24 @@ const DrawModal = ({ targetChar, targetRomaji, onClose, onCorrect }) => {
           />
         </div>
 
-        <div className="modal-actions" style={{marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center'}}>
+        <div className="modal-actions" style={{marginTop: '25px', display: 'flex', gap: '15px', justifyContent: 'center'}}>
           {!showAnswer ? (
              <>
-               <button onClick={clearCanvas} style={{background: '#ff9800'}}>🧹 ลบ</button>
-               <button onClick={() => setShowAnswer(true)} style={{background: '#2196F3'}}>👁️ เฉลย</button>
+               <button onClick={clearCanvas} style={{background: '#ff9800', display: 'flex', alignItems: 'center', gap: '5px'}}>
+                 🧹 ลบใหม่
+               </button>
+               <button onClick={() => setShowAnswer(true)} style={{background: '#2196F3', display: 'flex', alignItems: 'center', gap: '5px'}}>
+                 👁️ เฉลย / ตรวจคำตอบ
+               </button>
              </>
           ) : (
              <>
-               <button onClick={onClose} style={{background: '#f44336'}}>❌ ผิด (ฝึกใหม่)</button>
-               <button onClick={onCorrect} style={{background: '#4CAF50'}}>✅ ถูกต้อง!</button>
+               <button onClick={onClose} style={{background: '#f44336'}}>
+                 ❌ ยังไม่เหมือน (ฝึกใหม่)
+               </button>
+               <button onClick={onCorrect} style={{background: '#4CAF50', transform: 'scale(1.1)', boxShadow: '0 4px 10px rgba(76, 175, 80, 0.4)'}}>
+                 ✅ ถูกต้อง! (เหมือนเป๊ะ)
+               </button>
              </>
           )}
         </div>
