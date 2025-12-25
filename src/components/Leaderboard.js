@@ -2,7 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import '../App.css';
 
-// --- ✅ Component ย่อยสำหรับแสดงแต่ละแถว (คงเดิม) ---
+// ✅ 1. ฟังก์ชันช่วยแปลงสไตล์กรอบรูป (Copy มาจาก Shop เพื่อให้แสดงผลเหมือนกัน)
+const getFrameStyle = (frameType) => {
+  if (!frameType || frameType === 'none') {
+    return { border: '2px solid #ddd' }; // กรอบปกติใน Leaderboard
+  }
+
+  // 🌈 กรอบสายรุ้ง
+  if (frameType === 'rainbow') {
+    return {
+      border: '3px solid transparent', // ลดขนาดลงนิดหน่อยสำหรับ Leaderboard
+      backgroundImage: 'linear-gradient(#fff, #fff), linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
+      backgroundOrigin: 'border-box',
+      backgroundClip: 'content-box, border-box',
+      borderRadius: '50%'
+    };
+  }
+
+  // 💡 กรอบนีออน
+  if (frameType === 'neon') {
+    return {
+      border: '2px solid #fff',
+      boxShadow: '0 0 5px #FF00FF, 0 0 10px #FF00FF', // ลดแสงฟุ้งลงนิดหน่อยให้เหมาะกับขนาดเล็ก
+      borderRadius: '50%'
+    };
+  }
+
+  // กรอบสีปกติ
+  return {
+    border: frameType,
+    borderRadius: '50%'
+  };
+};
+
+// --- ✅ Component ย่อยสำหรับแสดงแต่ละแถว ---
 const LeaderboardItem = ({ player, rank }) => {
   const [equipped, setEquipped] = useState({ avatar: '👤', frame: 'none', bg: '#fff' });
 
@@ -10,6 +43,7 @@ const LeaderboardItem = ({ player, rank }) => {
     if (player.username === 'Guest') return;
 
     const db = getDatabase();
+    // ดึงข้อมูลการแต่งตัวของ user คนนี้
     const userRef = ref(db, `users/${player.username}/equipped`);
 
     const unsubscribe = onValue(userRef, (snapshot) => {
@@ -33,18 +67,21 @@ const LeaderboardItem = ({ player, rank }) => {
 
       {/* ✅ ส่วนแสดง Avatar และ Frame */}
       <div className="rank-avatar-container" style={{ position: 'relative', width: '45px', height: '45px', marginRight: '10px' }}>
+         
+         {/* Layer กรอบรูป */}
          <div 
             style={{ 
                position: 'absolute', 
                top: 0, left: 0, 
                width: '100%', height: '100%', 
-               borderRadius: '50%', 
-               border: equipped.frame === 'none' ? '2px solid #ddd' : equipped.frame,
+               // ✅ เรียกใช้ฟังก์ชัน getFrameStyle ตรงนี้
+               ...getFrameStyle(equipped.frame), 
                pointerEvents: 'none',
                zIndex: 2
             }}
          ></div>
 
+         {/* Layer พื้นหลังและ Avatar */}
          <div 
             style={{
               width: '100%', height: '100%',
@@ -80,7 +117,7 @@ function Leaderboard() {
     setLoading(true);
     const db = getDatabase();
     
-    // ⚠️ แก้ไข: ดึงข้อมูลทั้งหมดใน path มาประมวลผล (เอา limitToLast ออกเพื่อให้กรองชื่อซ้ำได้ถูกต้อง)
+    // ดึงข้อมูลทั้งหมดเพื่อนำมาหาคะแนนสูงสุด (Max Score)
     const scoreRef = ref(db, `scores/${activeTab}`);
 
     const unsubscribe = onValue(scoreRef, (snapshot) => {
@@ -89,29 +126,24 @@ function Leaderboard() {
       if (data) {
         const userMap = {};
 
-        // 1. วนลูปข้อมูลทั้งหมดเพื่อหา Max Score ของแต่ละคน
+        // 1. วนลูปข้อมูลเพื่อหา Max Score และตัดชื่อซ้ำ
         Object.values(data).forEach((entry) => {
           const name = entry.username || "Unknown";
           const score = parseInt(entry.score || 0);
 
           if (userMap[name]) {
-            // ถ้ามีชื่อนี้แล้ว ให้เช็คว่าคะแนนใหม่เยอะกว่าคะแนนเก่าไหม ถ้าใช่ให้อัปเดต
             if (score > userMap[name].score) {
                 userMap[name] = { ...entry, score: score };
             }
           } else {
-            // ถ้ายังไม่มีชื่อนี้ ให้เพิ่มเข้าไปเลย
             userMap[name] = { ...entry, score: score };
           }
         });
 
-        // 2. แปลง Object กลับเป็น Array
+        // 2. แปลงเป็น Array และเรียงลำดับ
         const sortedScores = Object.values(userMap);
-
-        // 3. เรียงลำดับจาก มาก -> น้อย
         sortedScores.sort((a, b) => b.score - a.score);
 
-        // 4. ตัดมาแสดงแค่ Top 5 หรือ Top 10 ตามต้องการ (ในที่นี้เอามาทั้งหมด แล้วไป slice ตอน render)
         setScores(sortedScores);
       } else {
         setScores([]);
@@ -148,8 +180,8 @@ function Leaderboard() {
             <small>มาเล่นเป็นคนแรกกันเถอะ!</small>
           </div>
         ) : (
-          // ✅ แสดงผลแค่ 3 อันดับแรก (หรือเปลี่ยนเลข 3 เป็น 5 ถ้าอยากได้ Top 5)
-          scores.slice(0, 3).map((player, index) => (
+          // แสดงผล 5 อันดับแรก (ปรับเลข slice ได้ตามต้องการ)
+          scores.slice(0, 5).map((player, index) => (
             <LeaderboardItem key={index} player={player} rank={index + 1} />
           ))
         )}
