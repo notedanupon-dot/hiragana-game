@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { getDatabase, ref, runTransaction } from 'firebase/database'; // ✅ เพิ่ม import Firebase
 import Game from '../components/Game';
 import Profile from '../components/Profile';
+import Shop from '../pages/Shop'; // ✅ ถูกต้อง (ถอยออกมา 1 ชั้น แล้วเข้า pages)
 import { hiraganaData } from '../data/hiragana';
 import '../App.css'; 
 
 // ✅ แก้ไข 1: รับ prop { username } เข้ามาตรงนี้
 const HiraganaGame = ({ username }) => {
+  // ✅ เพิ่ม 'shop' เข้าไปใน state view
   const [view, setView] = useState('menu'); 
   const [useInputMode, setUseInputMode] = useState(false); 
   const [userStats, setUserStats] = useState({ history: [] });
@@ -20,6 +23,7 @@ const HiraganaGame = ({ username }) => {
   const handleEnd = (result) => {
     console.log("Game Ended", result);
 
+    // --- ส่วนบันทึก LocalStorage เดิม ---
     const newHistoryItem = {
       date: new Date().toLocaleDateString('en-GB'),
       score: result.score
@@ -32,6 +36,24 @@ const HiraganaGame = ({ username }) => {
 
     setUserStats(newStats);
     localStorage.setItem('hiraganaStats', JSON.stringify(newStats));
+
+    // ✅ 4. เพิ่มระบบแจกเงิน (Coins) เข้า Firebase เมื่อเล่นจบ
+    // (เฉพาะ user ที่ไม่ใช่ Guest)
+    if (username && username !== "Guest") {
+      const db = getDatabase();
+      const userRef = ref(db, `users/${username}/coins`);
+      
+      // ใช้ Transaction เพื่อบวกเงินเพิ่มจากที่มีอยู่เดิม
+      runTransaction(userRef, (currentCoins) => {
+        // ให้เงินเท่ากับคะแนนที่ทำได้
+        return (currentCoins || 0) + result.score; 
+      }).then(() => {
+        console.log(`Added ${result.score} coins to ${username}`);
+      }).catch((err) => {
+        console.error("Coin update failed", err);
+      });
+    }
+
     setView('menu'); 
   };
 
@@ -66,6 +88,28 @@ const HiraganaGame = ({ username }) => {
           >
             📊 ดูสถิติพัฒนาการ
           </button>
+
+          {/* ✅ 5. ปุ่มเข้าสู่ร้านค้า (Shop) */}
+          <button 
+            className="shop-btn"
+            style={{ 
+              marginTop: '10px', 
+              background: '#FFD700', 
+              color: '#333',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'block',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }} 
+            onClick={() => setView('shop')}
+          >
+            🛒 ร้านค้า & แต่งตัว
+          </button>
         </div>
       )}
 
@@ -93,6 +137,14 @@ const HiraganaGame = ({ username }) => {
            username={username || "Guest Player"} 
            
            onBack={() => setView('menu')} 
+        />
+      )}
+
+      {/* --- ✅ เพิ่มหน้า SHOP --- */}
+      {view === 'shop' && (
+        <Shop 
+          username={username || "Guest"} 
+          onBack={() => setView('menu')} 
         />
       )}
 

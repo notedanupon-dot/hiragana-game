@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { getDatabase, ref, runTransaction } from 'firebase/database'; // ✅ เพิ่ม import Firebase
 import { katakanaData } from '../data/katakana';
 import Game from '../components/Game';
 import Profile from '../components/Profile';
+import Shop from '../pages/Shop'; // ✅ ถูกต้อง (ถอยออกมา 1 ชั้น แล้วเข้า pages)
 import '../App.css'; 
 
 const KatakanaGame = ({ username }) => {
@@ -38,6 +40,22 @@ const KatakanaGame = ({ username }) => {
     setUserStats(newStats);
     localStorage.setItem('katakanaStats', JSON.stringify(newStats));
 
+    // ✅ 4. เพิ่มระบบแจกเงิน (Coins) เข้า Firebase เมื่อเล่นจบ
+    if (username && username !== "Guest") {
+      const db = getDatabase();
+      const userRef = ref(db, `users/${username}/coins`);
+      
+      // ใช้ Transaction เพื่อบวกเงินเพิ่มจากที่มีอยู่เดิม
+      runTransaction(userRef, (currentCoins) => {
+        // ให้เงินเท่ากับคะแนนที่ทำได้
+        return (currentCoins || 0) + result.score; 
+      }).then(() => {
+        console.log(`Added ${result.score} coins to ${username}`);
+      }).catch((err) => {
+        console.error("Coin update failed", err);
+      });
+    }
+
     setView('menu'); 
   };
 
@@ -72,6 +90,28 @@ const KatakanaGame = ({ username }) => {
           >
             📊 ดูสถิติพัฒนาการ
           </button>
+
+          {/* ✅ 5. ปุ่มเข้าสู่ร้านค้า (Shop) */}
+          <button 
+            className="shop-btn"
+            style={{ 
+              marginTop: '10px', 
+              background: '#FFD700', 
+              color: '#333',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'block',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }} 
+            onClick={() => setView('shop')}
+          >
+            🛒 ร้านค้า & แต่งตัว
+          </button>
         </div>
       )}
 
@@ -93,6 +133,14 @@ const KatakanaGame = ({ username }) => {
            history={userStats.history} 
            username={username || "Guest Player"} // ส่งชื่อผู้เล่นไปที่กราฟ
            onBack={() => setView('menu')} 
+        />
+      )}
+
+      {/* --- ✅ เพิ่มหน้า SHOP --- */}
+      {view === 'shop' && (
+        <Shop 
+          username={username || "Guest"} 
+          onBack={() => setView('menu')} 
         />
       )}
     </div>
